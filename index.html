@@ -1006,6 +1006,23 @@ async function deriveKey(password, salt) {
   );
 }
 
+// FIX: Encodage/Décodage ultra sécurisé pour téléphones (zéro plantage mémoire)
+function bytesToBase64(bytes) {
+  let binary = '';
+  for (let i = 0; i < bytes.byteLength; i++) {
+      binary += String.fromCharCode(bytes[i]);
+  }
+  return window.btoa(binary);
+}
+function base64ToBytes(base64) {
+  const binary = window.atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+      bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes;
+}
+
 async function enc(key, plaintext) {
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const ct = await crypto.subtle.encrypt(
@@ -1013,11 +1030,11 @@ async function enc(key, plaintext) {
   );
   const buf = new Uint8Array(12 + ct.byteLength);
   buf.set(iv); buf.set(new Uint8Array(ct), 12);
-  return btoa(String.fromCharCode(...buf));
+  return bytesToBase64(buf);
 }
 
 async function dec(key, b64) {
-  const buf = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+  const buf = base64ToBytes(b64);
   const pt  = await crypto.subtle.decrypt(
     { name:'AES-GCM', iv:buf.slice(0,12) }, key, buf.slice(12)
   );
@@ -1061,7 +1078,7 @@ async function doSetup() {
   if (p1 !== p2) { err.classList.add('show'); return; }
 
   const salt = crypto.getRandomValues(new Uint8Array(32));
-  localStorage.setItem(LS.SALT, btoa(String.fromCharCode(...salt)));
+  localStorage.setItem(LS.SALT, bytesToBase64(salt));
 
   sessionKey = await deriveKey(p1, salt);
   localStorage.setItem(LS.VERIFY, await enc(sessionKey, VERIFY_TXT));
@@ -1072,7 +1089,7 @@ async function doSetup() {
   show('screen-github');
 }
 
-// NOUVEAUTÉ : Restaurer depuis GitHub
+// FIX: Anti-Cache ajouté sur les URL GitHub (?t=...)
 async function doRestore() {
   const repo = document.getElementById('r-repo').value.trim();
   const token = document.getElementById('r-token').value.trim();
@@ -1084,29 +1101,25 @@ async function doRestore() {
   btn.textContent = 'Recherche en cours...'; btn.disabled = true;
 
   try {
-    // Récupérer le sel depuis GitHub
-    let res = await fetch(`https://api.github.com/repos/${repo}/contents/vault.salt.txt`, {
-      headers:{ Authorization:`token ${token}`, Accept:'application/vnd.github.v3+json' }
+    let res = await fetch(`https://api.github.com/repos/${repo}/contents/vault.salt.txt?t=${Date.now()}`, {
+      headers:{ Authorization:`token ${token}`, Accept:'application/vnd.github.v3+json', 'Cache-Control': 'no-cache' }
     });
     if (!res.ok) throw new Error("Impossible de trouver le coffre (Sel introuvable).");
     const saltMeta = await res.json();
     const remoteSalt = b64ToStr(saltMeta.content).trim();
 
-    // Récupérer le fichier de vérification
-    res = await fetch(`https://api.github.com/repos/${repo}/contents/vault.verify.txt`, {
-      headers:{ Authorization:`token ${token}`, Accept:'application/vnd.github.v3+json' }
+    res = await fetch(`https://api.github.com/repos/${repo}/contents/vault.verify.txt?t=${Date.now()}`, {
+      headers:{ Authorization:`token ${token}`, Accept:'application/vnd.github.v3+json', 'Cache-Control': 'no-cache' }
     });
     if (!res.ok) throw new Error("Fichier de vérification introuvable.");
     const verifyMeta = await res.json();
     const remoteVerify = b64ToStr(verifyMeta.content).trim();
 
-    // Enregistrer en local
     localStorage.setItem(LS.SALT, remoteSalt);
     localStorage.setItem('cf2_sha_salt', saltMeta.sha);
     localStorage.setItem(LS.VERIFY, remoteVerify);
     localStorage.setItem('cf2_sha_verify', verifyMeta.sha);
     
-    // Garder le repo et le token temporairement (sans le chiffrer car on n'a pas encore le mdp)
     localStorage.setItem(LS.GH_REPO, repo);
     localStorage.setItem(LS.GH_TOK, "RAW_" + token);
 
@@ -1134,7 +1147,7 @@ async function doUnlock() {
     let saltB64 = localStorage.getItem(LS.SALT);
     if (!saltB64) throw new Error('no_salt');
 
-    const salt = Uint8Array.from(atob(saltB64), c => c.charCodeAt(0));
+    const salt = base64ToBytes(saltB64);
     const key  = await deriveKey(pass, salt);
 
     let verifyBlob = localStorage.getItem(LS.VERIFY);
@@ -1146,14 +1159,13 @@ async function doUnlock() {
     sessionKey = key;
     failedAttempts = 0;
 
-    // Gérer le token de GitHub (s'il vient d'une restauration RAW, on le chiffre maintenant)
     const encTok = localStorage.getItem(LS.GH_TOK);
     const repo   = localStorage.getItem(LS.GH_REPO);
     if (encTok && repo) {
       if (encTok.startsWith("RAW_")) {
           ghToken = encTok.substring(4);
           ghRepo = repo;
-          localStorage.setItem(LS.GH_TOK, await enc(sessionKey, ghToken)); // Chiffrement !
+          localStorage.setItem(LS.GH_TOK, await enc(sessionKey, ghToken)); 
       } else {
           try { ghToken = await dec(sessionKey, encTok); ghRepo = repo; } catch {}
       }
@@ -1223,26 +1235,31 @@ async function loadLocal() {
 }
 
 // ══════════════════════════════════════════════
-//  HELPERS BASE64
+//  HELPERS BASE64 (100% Anti-Bug Mobile)
 // ══════════════════════════════════════════════
 function strToB64(str) {
-  return btoa(String.fromCharCode(...new TextEncoder().encode(str)));
+  const bytes = new TextEncoder().encode(str);
+  let binary = '';
+  for(let i=0; i<bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+  return btoa(binary);
 }
 function b64ToStr(b64) {
   const clean = b64.replace(/\s/g, '');
-  const bytes = Uint8Array.from(atob(clean), c => c.charCodeAt(0));
+  const binary = atob(clean);
+  const bytes = new Uint8Array(binary.length);
+  for(let i=0; i<binary.length; i++) bytes[i] = binary.charCodeAt(i);
   return new TextDecoder().decode(bytes);
 }
 
 // ══════════════════════════════════════════════
-//  GITHUB API
+//  GITHUB API (100% Anti-Cache GitHub)
 // ══════════════════════════════════════════════
 async function ghPut(filename, content, shaKey, isRetry = false) {
   let sha = localStorage.getItem(shaKey);
   
   if (!sha) {
-    const checkRes = await fetch(`https://api.github.com/repos/${ghRepo}/contents/${filename}`, {
-      headers: { Authorization: `token ${ghToken}`, Accept: 'application/vnd.github.v3+json' }
+    const checkRes = await fetch(`https://api.github.com/repos/${ghRepo}/contents/${filename}?t=${Date.now()}`, {
+      headers: { Authorization: `token ${ghToken}`, Accept: 'application/vnd.github.v3+json', 'Cache-Control': 'no-cache' }
     });
     if (checkRes.ok) {
       const meta = await checkRes.json();
@@ -1281,8 +1298,8 @@ async function ghPut(filename, content, shaKey, isRetry = false) {
 }
 
 async function ghGet(filename) {
-  const res = await fetch(`https://api.github.com/repos/${ghRepo}/contents/${filename}`, {
-    headers: { Authorization: `token ${ghToken}`, Accept: 'application/vnd.github.v3+json' }
+  const res = await fetch(`https://api.github.com/repos/${ghRepo}/contents/${filename}?t=${Date.now()}`, {
+    headers: { Authorization: `token ${ghToken}`, Accept: 'application/vnd.github.v3+json', 'Cache-Control': 'no-cache' }
   });
   if (res.status === 404) return { content: null, sha: null };
   if (!res.ok) throw new Error(`GitHub GET ${filename} : ${res.status}`);
@@ -1345,10 +1362,7 @@ async function doSync() {
       try {
         remoteVault = JSON.parse(await dec(sessionKey, remote.content.trim()));
       } catch {
-        // SÉCURITÉ ANTI-DESTRUCTION :
-        // Si le déchiffrement échoue, c'est que l'appareil a une mauvaise clé.
-        // On stoppe tout pour éviter d'écraser les vraies données sur GitHub !
-        throw new Error("Clé de sécurité incorrecte. Ce téléphone n'a pas été restauré correctement.");
+        throw new Error("Erreur de déchiffrement. Fichier corrompu ou mauvaise clé.");
       }
     }
     if (remote.sha) localStorage.setItem(LS.LAST_SHA, remote.sha);
