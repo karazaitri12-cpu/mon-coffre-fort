@@ -1038,14 +1038,10 @@ async function doUnlock() {
     // ── Récupérer le sel : localStorage d'abord, sinon GitHub (nouveau portable)
     let saltB64 = localStorage.getItem(LS.SALT);
     if (!saltB64) {
-      // Le sel n'est pas secret (il sert juste à diversifier la dérivation).
-      // On le stocke publiquement sur GitHub pour permettre la restauration
-      // sur un nouvel appareil. vault.salt.txt est lisible sans auth sur repo privé
-      // si on passe le token stocké en clair (avant premier déchiffrement).
       const repo = localStorage.getItem(LS.GH_REPO);
       if (!repo) throw new Error('no_salt');
       btn.textContent = 'R\u00e9cup\u00e9ration du sel\u2026';
-      // vault.salt.txt est public car le sel seul ne compromet rien
+      
       const res = await fetch(
         `https://api.github.com/repos/${repo}/contents/vault.salt.txt`,
         { headers: { Accept: 'application/vnd.github.v3+json' } }
@@ -1054,6 +1050,8 @@ async function doUnlock() {
       const meta = await res.json();
       saltB64 = b64ToStr(meta.content).trim();
       localStorage.setItem(LS.SALT, saltB64);
+      localStorage.setItem('cf2_sha_salt', meta.sha); // FIX : Sauvegarde du SHA
+
       btn.textContent = 'V\u00e9rification\u2026';
     }
 
@@ -1074,6 +1072,7 @@ async function doUnlock() {
           const meta = await res.json();
           verifyBlob = b64ToStr(meta.content).trim();
           localStorage.setItem(LS.VERIFY, verifyBlob);
+          localStorage.setItem('cf2_sha_verify', meta.sha); // FIX : Sauvegarde du SHA
         }
       }
       if (!verifyBlob) throw new Error('no_verify');
@@ -1090,8 +1089,6 @@ async function doUnlock() {
     if (encTok && repo) {
       try { ghToken = await dec(sessionKey, encTok); ghRepo = repo; } catch {}
     }
-    // Sur un nouvel appareil le token n'est pas encore stocké localement ;
-    // la sync sera déclenchée manuellement après configuration GitHub.
 
     await loadLocal();
     enterApp();
@@ -1164,25 +1161,37 @@ async function loadLocal() {
 // ══════════════════════════════════════════════
 //  HELPERS BASE64 (safe pour Unicode)
 // ══════════════════════════════════════════════
-// Encode une chaîne quelconque en base64 via UTF-8
 function strToB64(str) {
   return btoa(String.fromCharCode(...new TextEncoder().encode(str)));
 }
-// Décode un base64 GitHub (peut contenir \n) en chaîne UTF-8
 function b64ToStr(b64) {
   const clean = b64.replace(/\s/g, '');
   const bytes = Uint8Array.from(atob(clean), c => c.charCodeAt(0));
   return new TextDecoder().decode(bytes);
 }
 
-// Push un fichier texte sur GitHub (crée ou met à jour)
+// Push un fichier texte sur GitHub (crée ou met à jour) - FIX SHA
 async function ghPut(filename, content, shaKey) {
-  const sha = localStorage.getItem(shaKey);
+  let sha = localStorage.getItem(shaKey);
+  
+  // Si le SHA n'est pas en local, on interroge GitHub pour l'obtenir
+  if (!sha) {
+    const checkRes = await fetch(`https://api.github.com/repos/${ghRepo}/contents/${filename}`, {
+      headers: { Authorization: `token ${ghToken}`, Accept: 'application/vnd.github.v3+json' }
+    });
+    if (checkRes.ok) {
+      const meta = await checkRes.json();
+      sha = meta.sha;
+      localStorage.setItem(shaKey, sha);
+    }
+  }
+
   const body = {
     message: `Sync coffre ${new Date().toISOString()}`,
-    content: strToB64(content)   // contenu du fichier encodé en base64
+    content: strToB64(content) 
   };
   if (sha) body.sha = sha;
+  
   const res = await fetch(`https://api.github.com/repos/${ghRepo}/contents/${filename}`, {
     method: 'PUT',
     headers: {
@@ -1252,26 +1261,20 @@ async function doSync() {
   setSyncUI('syncing', 'Synchronisation en cours\u2026');
 
   try {
-    // ── 1. Pousser le sel (permet à d'autres appareils de dériver la même clé)
-    const saltB64 = localStorage.getItem(LS.SALT); // déjà en base64 ASCII pur
+    const saltB64 = localStorage.getItem(LS.SALT);
     await ghPut('vault.salt.txt', saltB64, 'cf2_sha_salt');
     const verifyBlob = localStorage.getItem(LS.VERIFY);
     await ghPut('vault.verify.txt', verifyBlob, 'cf2_sha_verify');
 
-    // ── 2. Lire le coffre distant
     const remote = await ghGet(GH_FILE);
     let remoteVault = null;
     if (remote.content) {
-      // Le fichier distant contient notre blob AES (chaîne base64)
-      // On le déchiffre directement
       try {
         remoteVault = JSON.parse(await dec(sessionKey, remote.content.trim()));
       } catch { remoteVault = null; }
     }
-    // Stocker le SHA distant pour le prochain PUT
     if (remote.sha) localStorage.setItem(LS.LAST_SHA, remote.sha);
 
-    // ── 3. Fusionner local + distant
     if (remoteVault && Array.isArray(remoteVault)) {
       const merged = mergeVaults(vault, remoteVault);
       if (JSON.stringify(merged) !== JSON.stringify(vault)) {
@@ -1281,8 +1284,6 @@ async function doSync() {
       }
     }
 
-    // ── 4. Pousser le coffre fusionné
-    //    Le blob AES est une chaîne base64 ASCII pure → on peut la stocker telle quelle
     const blob = await enc(sessionKey, JSON.stringify(vault));
     await ghPut(GH_FILE, blob, LS.LAST_SHA);
 
@@ -1297,6 +1298,7 @@ async function doSync() {
   }
 }
 
+// FIX: Gestion des suppressions par Tombstone pour la Sync
 function mergeVaults(local, remote) {
   const map = {};
   [...local, ...remote].forEach(e => {
@@ -1304,7 +1306,8 @@ function mergeVaults(local, remote) {
       map[e.id] = e;
     }
   });
-  return Object.values(map).filter(e => !e._deleted);
+  // On retourne TOUS les éléments (y compris les supprimés) pour propager la suppression
+  return Object.values(map); 
 }
 
 function updateSync() {
@@ -1458,9 +1461,16 @@ async function saveEntry() {
   if (ghToken && ghRepo) setTimeout(() => doSync(), 1000);
 }
 
+// FIX: Suppression logique (Tombstone) au lieu d'effacer pour la Sync
 async function delEntry(id) {
   if (!confirm('Supprimer définitivement ?')) return;
-  vault = vault.filter(e => e.id !== id);
+  
+  const idx = vault.findIndex(e => e.id === id);
+  if (idx >= 0) {
+    vault[idx]._deleted = true;
+    vault[idx].updatedAt = new Date().toISOString();
+  }
+  
   await saveLocal();
   renderEntries(); updateStats(); updateCounts();
   toast('Identifiant supprimé','warn');
@@ -1479,10 +1489,13 @@ const CAT = {
   other:   {l:'Autre',   c:'cat-other'},
 };
 
+// FIX: On ne rend pas les éléments supprimés (_deleted)
 function renderEntries() {
   const q   = (document.getElementById('q').value || '').toLowerCase();
   const cat = currentCat;
+  
   let list  = vault.filter(e => {
+    if (e._deleted) return false;
     const mc = cat === 'all' || e.category === cat;
     const mq = !q || [e.title,e.login,e.url,e.notes].some(f => f && f.toLowerCase().includes(q));
     return mc && mq;
@@ -1492,8 +1505,8 @@ function renderEntries() {
   if (!list.length) {
     cont.innerHTML = `<div class="empty">
       <svg width="44" height="44" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-      <h3>${vault.length ? 'Aucun r\u00e9sultat' : 'Coffre vide'}</h3>
-      <p>${vault.length ? 'Modifiez la recherche' : 'Ajoutez votre premier identifiant'}</p>
+      <h3>${vault.filter(e=>!e._deleted).length ? 'Aucun r\u00e9sultat' : 'Coffre vide'}</h3>
+      <p>${vault.filter(e=>!e._deleted).length ? 'Modifiez la recherche' : 'Ajoutez votre premier identifiant'}</p>
     </div>`;
     return;
   }
@@ -1551,16 +1564,19 @@ function q_(s){ return JSON.stringify(String(s||'')) }
 // ══════════════════════════════════════════════
 //  STATS
 // ══════════════════════════════════════════════
+// FIX: On ne compte plus les éléments supprimés (_deleted)
 function updateStats() {
-  document.getElementById('st-total').textContent  = vault.length;
-  document.getElementById('st-cats').textContent   = new Set(vault.map(e=>e.category)).size;
-  document.getElementById('st-strong').textContent = vault.filter(e=>e.password&&e.password.length>=12).length;
+  const actifs = vault.filter(e => !e._deleted);
+  document.getElementById('st-total').textContent  = actifs.length;
+  document.getElementById('st-cats').textContent   = new Set(actifs.map(e=>e.category)).size;
+  document.getElementById('st-strong').textContent = actifs.filter(e=>e.password&&e.password.length>=12).length;
 }
 function updateCounts() {
-  document.getElementById('c-all').textContent = vault.length;
+  const actifs = vault.filter(e => !e._deleted);
+  document.getElementById('c-all').textContent = actifs.length;
   ['web','email','finance','social','medical','other'].forEach(c => {
     const el = document.getElementById('c-'+c);
-    if (el) el.textContent = vault.filter(e=>e.category===c).length;
+    if (el) el.textContent = actifs.filter(e=>e.category===c).length;
   });
 }
 
