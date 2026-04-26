@@ -1006,7 +1006,6 @@ async function deriveKey(password, salt) {
   );
 }
 
-// FIX: Encodage/Décodage ultra sécurisé pour téléphones (zéro plantage mémoire)
 function bytesToBase64(bytes) {
   let binary = '';
   for (let i = 0; i < bytes.byteLength; i++) {
@@ -1089,7 +1088,7 @@ async function doSetup() {
   show('screen-github');
 }
 
-// FIX: Anti-Cache ajouté sur les URL GitHub (?t=...)
+// FIX FINAL CORS : Seul le paramètre URL est gardé, plus de headers bloquants
 async function doRestore() {
   const repo = document.getElementById('r-repo').value.trim();
   const token = document.getElementById('r-token').value.trim();
@@ -1102,14 +1101,14 @@ async function doRestore() {
 
   try {
     let res = await fetch(`https://api.github.com/repos/${repo}/contents/vault.salt.txt?t=${Date.now()}`, {
-      headers:{ Authorization:`token ${token}`, Accept:'application/vnd.github.v3+json', 'Cache-Control': 'no-cache' }
+      headers:{ Authorization:`token ${token}`, Accept:'application/vnd.github.v3+json' }
     });
     if (!res.ok) throw new Error("Impossible de trouver le coffre (Sel introuvable).");
     const saltMeta = await res.json();
     const remoteSalt = b64ToStr(saltMeta.content).trim();
 
     res = await fetch(`https://api.github.com/repos/${repo}/contents/vault.verify.txt?t=${Date.now()}`, {
-      headers:{ Authorization:`token ${token}`, Accept:'application/vnd.github.v3+json', 'Cache-Control': 'no-cache' }
+      headers:{ Authorization:`token ${token}`, Accept:'application/vnd.github.v3+json' }
     });
     if (!res.ok) throw new Error("Fichier de vérification introuvable.");
     const verifyMeta = await res.json();
@@ -1235,7 +1234,7 @@ async function loadLocal() {
 }
 
 // ══════════════════════════════════════════════
-//  HELPERS BASE64 (100% Anti-Bug Mobile)
+//  HELPERS BASE64
 // ══════════════════════════════════════════════
 function strToB64(str) {
   const bytes = new TextEncoder().encode(str);
@@ -1252,14 +1251,14 @@ function b64ToStr(b64) {
 }
 
 // ══════════════════════════════════════════════
-//  GITHUB API (100% Anti-Cache GitHub)
+//  GITHUB API (FIX CORS FINAL)
 // ══════════════════════════════════════════════
 async function ghPut(filename, content, shaKey, isRetry = false) {
   let sha = localStorage.getItem(shaKey);
   
   if (!sha) {
     const checkRes = await fetch(`https://api.github.com/repos/${ghRepo}/contents/${filename}?t=${Date.now()}`, {
-      headers: { Authorization: `token ${ghToken}`, Accept: 'application/vnd.github.v3+json', 'Cache-Control': 'no-cache' }
+      headers: { Authorization: `token ${ghToken}`, Accept: 'application/vnd.github.v3+json' }
     });
     if (checkRes.ok) {
       const meta = await checkRes.json();
@@ -1299,7 +1298,7 @@ async function ghPut(filename, content, shaKey, isRetry = false) {
 
 async function ghGet(filename) {
   const res = await fetch(`https://api.github.com/repos/${ghRepo}/contents/${filename}?t=${Date.now()}`, {
-    headers: { Authorization: `token ${ghToken}`, Accept: 'application/vnd.github.v3+json', 'Cache-Control': 'no-cache' }
+    headers: { Authorization: `token ${ghToken}`, Accept: 'application/vnd.github.v3+json' }
   });
   if (res.status === 404) return { content: null, sha: null };
   if (!res.ok) throw new Error(`GitHub GET ${filename} : ${res.status}`);
