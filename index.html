@@ -6,31 +6,31 @@
 <title>Coffre-Fort — Synchronisé GitHub</title>
 <style>
 :root {
-  --bg: #0d1117;
-  --surface: #161b22;
-  --surface2: #1c2330;
-  --surface3: #212936;
-  --border: #2d333b;
-  --border2: #373e47;
-  --accent: #388bfd;
-  --accent-dim: rgba(56,139,253,0.15);
-  --accent-glow: rgba(56,139,253,0.08);
-  --gold: #d4a843;
-  --gold-dim: rgba(212,168,67,0.15);
-  --green: #3fb950;
-  --green-dim: rgba(63,185,80,0.15);
-  --red: #f85149;
-  --red-dim: rgba(248,81,73,0.12);
-  --orange: #d29922;
-  --text: #e6edf3;
-  --text-muted: #8b949e;
-  --text-dim: #484f58;
+  --bg: #f4f6f9;
+  --surface: #ffffff;
+  --surface2: #f0f2f5;
+  --surface3: #e8ebf0;
+  --border: #d8dde6;
+  --border2: #c4cad6;
+  --accent: #1a6fd4;
+  --accent-dim: rgba(26,111,212,0.08);
+  --accent-glow: rgba(26,111,212,0.05);
+  --gold: #9a6f00;
+  --gold-dim: rgba(154,111,0,0.10);
+  --green: #1a7f37;
+  --green-dim: rgba(26,127,55,0.10);
+  --red: #cf222e;
+  --red-dim: rgba(207,34,46,0.08);
+  --orange: #b45309;
+  --text: #1a1f2e;
+  --text-muted: #4a5568;
+  --text-dim: #8a95a8;
   --mono: 'SFMono-Regular', 'Consolas', 'Liberation Mono', monospace;
   --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
   --radius: 6px;
   --radius-lg: 12px;
-  --shadow: 0 8px 32px rgba(0,0,0,0.6);
-  --shadow-sm: 0 2px 8px rgba(0,0,0,0.4);
+  --shadow: 0 4px 24px rgba(0,0,0,0.10);
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.07);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
@@ -56,7 +56,7 @@ body{
   justify-content:center;
   padding:20px;
   background:
-    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(56,139,253,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(26,111,212,0.06) 0%, transparent 60%),
     var(--bg);
 }
 
@@ -114,7 +114,8 @@ body{
 }
 .form-input:focus{
   border-color:var(--accent);
-  box-shadow:0 0 0 3px rgba(56,139,253,.12);
+  box-shadow:0 0 0 3px rgba(26,111,212,.10);
+  background:#fff;
 }
 .form-input::placeholder{color:var(--text-dim);font-family:var(--sans)}
 .form-input.error{border-color:var(--red)}
@@ -137,14 +138,14 @@ body{
 }
 .btn:active{transform:translateY(1px)}
 .btn-primary{background:var(--accent);color:#fff}
-.btn-primary:hover{background:#58a6ff}
-.btn-success{background:var(--green);color:#0d1117}
-.btn-success:hover{background:#56d364}
+.btn-primary:hover{background:#1558aa}
+.btn-success{background:var(--green);color:#fff}
+.btn-success:hover{background:#145f2a}
 .btn-ghost{background:transparent;color:var(--text-muted);border:1px solid var(--border)}
 .btn-ghost:hover{background:var(--surface2);color:var(--text);border-color:var(--border2)}
-.btn-danger{background:transparent;color:var(--red);border:1px solid rgba(248,81,73,.4)}
+.btn-danger{background:transparent;color:var(--red);border:1px solid rgba(207,34,46,.35)}
 .btn-danger:hover{background:var(--red-dim)}
-.btn-gold{background:linear-gradient(135deg,#a07028,var(--gold));color:#0d0a02;font-weight:700}
+.btn-gold{background:linear-gradient(135deg,#7a5200,var(--gold));color:#fff;font-weight:700}
 .btn-gold:hover{filter:brightness(1.1)}
 .btn-full{width:100%}
 .btn-icon{
@@ -161,13 +162,13 @@ body{
   padding:12px 14px;border-radius:var(--radius);
   font-size:12px;line-height:1.7;margin-top:16px;
 }
-.info-box.blue{background:var(--accent-glow);border:1px solid rgba(56,139,253,.25);color:var(--text-muted)}
+.info-box.blue{background:var(--accent-glow);border:1px solid rgba(26,111,212,.18);color:var(--text-muted)}
 .info-box.blue strong{color:var(--accent)}
-.info-box.gold{background:var(--gold-dim);border:1px solid rgba(212,168,67,.3);color:var(--text-muted)}
+.info-box.gold{background:var(--gold-dim);border:1px solid rgba(154,111,0,.22);color:var(--text-muted)}
 .info-box.gold strong{color:var(--gold)}
-.info-box.green{background:var(--green-dim);border:1px solid rgba(63,185,80,.3);color:var(--text-muted)}
+.info-box.green{background:var(--green-dim);border:1px solid rgba(26,127,55,.22);color:var(--text-muted)}
 .info-box.green strong{color:var(--green)}
-.info-box.red{background:var(--red-dim);border:1px solid rgba(248,81,73,.3);color:var(--text-muted)}
+.info-box.red{background:var(--red-dim);border:1px solid rgba(207,34,46,.22);color:var(--text-muted)}
 .info-box.red strong{color:var(--red)}
 
 .err-msg{color:var(--red);font-size:12px;display:none;margin-top:4px}
@@ -187,15 +188,16 @@ body{
   padding:0 20px;
   display:flex;align-items:center;justify-content:space-between;
   height:52px;position:sticky;top:0;z-index:100;
+  box-shadow:0 1px 4px rgba(0,0,0,0.06);
 }
 .logo{display:flex;align-items:center;gap:9px;font-weight:700;font-size:15px;color:var(--text)}
 .logo-badge{
   font-size:10px;padding:2px 6px;border-radius:3px;font-weight:600;
-  background:var(--green-dim);color:var(--green);border:1px solid rgba(63,185,80,.3);
+  background:var(--green-dim);color:var(--green);border:1px solid rgba(26,127,55,.25);
   letter-spacing:.06em;text-transform:uppercase;
 }
-.logo-badge.offline{background:var(--red-dim);color:var(--red);border-color:rgba(248,81,73,.3)}
-.logo-badge.syncing{background:var(--gold-dim);color:var(--gold);border-color:rgba(212,168,67,.3)}
+.logo-badge.offline{background:var(--red-dim);color:var(--red);border-color:rgba(207,34,46,.25)}
+.logo-badge.syncing{background:var(--gold-dim);color:var(--gold);border-color:rgba(154,111,0,.25)}
 
 .header-right{display:flex;align-items:center;gap:6px}
 .sync-info{font-size:11px;color:var(--text-dim);margin-right:4px}
@@ -232,7 +234,7 @@ body{
 .sb-item:hover{background:var(--surface2);color:var(--text)}
 .sb-item.active{
   background:var(--accent-dim);
-  border-color:rgba(56,139,253,.25);
+  border-color:rgba(26,111,212,.18);
   color:var(--accent);
 }
 .sb-badge{
@@ -240,7 +242,7 @@ body{
   color:var(--text-dim);font-size:10px;
   padding:1px 6px;border-radius:10px;font-weight:600;
 }
-.sb-item.active .sb-badge{background:rgba(56,139,253,.2);color:var(--accent)}
+.sb-item.active .sb-badge{background:rgba(26,111,212,.12);color:var(--accent)}
 .sb-divider{height:1px;background:var(--border);margin:8px 16px}
 .sb-bottom{
   margin-top:auto;padding:12px;
@@ -250,7 +252,7 @@ body{
 /* ══════════════════════════════════════
    MAIN
 ══════════════════════════════════════ */
-.main{padding:20px;overflow-y:auto}
+.main{padding:20px;overflow-y:auto;background:var(--bg)}
 
 .stats-row{
   display:grid;
@@ -260,6 +262,7 @@ body{
 .stat-card{
   background:var(--surface);border:1px solid var(--border);
   border-radius:8px;padding:12px 14px;
+  box-shadow:var(--shadow-sm);
 }
 .stat-val{
   font-size:26px;font-family:var(--mono);
@@ -275,8 +278,9 @@ body{
   border-radius:var(--radius);color:var(--text);
   padding:8px 12px 8px 32px;font-size:13px;outline:none;
   transition:border-color .2s;
+  box-shadow:var(--shadow-sm);
 }
-.search-inp:focus{border-color:var(--accent)}
+.search-inp:focus{border-color:var(--accent);background:#fff}
 .search-inp::placeholder{color:var(--text-dim)}
 
 /* ══════════════════════════════════════
@@ -288,10 +292,11 @@ body{
   background:var(--surface);border:1px solid var(--border);
   border-radius:8px;padding:14px;
   transition:border-color .2s,box-shadow .2s;
+  box-shadow:var(--shadow-sm);
 }
 .entry-card:hover{
   border-color:var(--border2);
-  box-shadow:0 4px 16px rgba(0,0,0,.3);
+  box-shadow:0 4px 16px rgba(0,0,0,.10);
 }
 .ec-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px}
 .ec-avatar{
@@ -323,12 +328,12 @@ body{
 .ec-actions{display:flex;gap:4px;justify-content:flex-end}
 
 /* category colors */
-.cat-web{background:var(--accent-dim);color:var(--accent)}
-.cat-social{background:rgba(188,88,212,.15);color:#d2a8ff}
+.cat-web{background:rgba(26,111,212,.08);color:var(--accent)}
+.cat-social{background:rgba(124,58,237,.08);color:#6d28d9}
 .cat-finance{background:var(--gold-dim);color:var(--gold)}
 .cat-email{background:var(--green-dim);color:var(--green)}
-.cat-medical{background:var(--red-dim);color:#ff9492}
-.cat-other{background:rgba(100,110,130,.15);color:var(--text-muted)}
+.cat-medical{background:var(--red-dim);color:var(--red)}
+.cat-other{background:var(--surface2);color:var(--text-muted)}
 
 /* ══════════════════════════════════════
    EMPTY STATE
@@ -343,7 +348,7 @@ body{
 ══════════════════════════════════════ */
 .overlay{
   position:fixed;inset:0;
-  background:rgba(0,0,0,.75);
+  background:rgba(0,0,0,.40);
   backdrop-filter:blur(4px);
   z-index:200;display:none;
   align-items:center;justify-content:center;padding:16px;
@@ -358,12 +363,14 @@ body{
 .modal-hd{
   display:flex;align-items:center;justify-content:space-between;
   padding:18px 22px 14px;border-bottom:1px solid var(--border);
+  background:var(--surface);
 }
 .modal-title{font-size:15px;font-weight:700;color:var(--text)}
-.modal-body{padding:18px 22px;display:flex;flex-direction:column;gap:14px}
+.modal-body{padding:18px 22px;display:flex;flex-direction:column;gap:14px;background:var(--surface)}
 .modal-ft{
   padding:14px 22px;border-top:1px solid var(--border);
   display:flex;gap:8px;justify-content:flex-end;
+  background:var(--surface2);
 }
 
 /* ══════════════════════════════════════
@@ -372,7 +379,7 @@ body{
 .gen-out{
   background:var(--surface2);border:1px solid var(--border);
   border-radius:var(--radius);padding:12px 14px;
-  font-family:var(--mono);font-size:14px;color:#58a6ff;
+  font-family:var(--mono);font-size:14px;color:var(--accent);
   word-break:break-all;min-height:46px;display:flex;align-items:center;
   letter-spacing:.03em;
 }
@@ -384,7 +391,7 @@ body{
 .gen-len-val{font-family:var(--mono);font-size:13px;color:var(--accent);width:26px;text-align:right}
 
 /* ══════════════════════════════════════
-   GITHUB SETTINGS SCREEN
+   STEPS
 ══════════════════════════════════════ */
 .step{
   display:flex;gap:12px;padding:12px 0;
@@ -393,7 +400,7 @@ body{
 .step:last-child{border-bottom:none}
 .step-num{
   width:26px;height:26px;border-radius:50%;
-  background:var(--accent-dim);border:1px solid rgba(56,139,253,.3);
+  background:var(--accent-dim);border:1px solid rgba(26,111,212,.25);
   color:var(--accent);font-size:12px;font-weight:700;
   display:flex;align-items:center;justify-content:center;flex-shrink:0;
 }
@@ -413,14 +420,14 @@ body{
   background:var(--surface);border:1px solid var(--border);
   border-radius:var(--radius);padding:9px 14px;
   font-size:13px;color:var(--text);
-  box-shadow:var(--shadow-sm);
+  box-shadow:var(--shadow);
   animation:toast-in .25s ease;
   display:flex;align-items:center;gap:8px;
   max-width:320px;
 }
-.toast.ok{border-color:rgba(63,185,80,.5)}
-.toast.err{border-color:rgba(248,81,73,.5)}
-.toast.warn{border-color:rgba(212,168,67,.5)}
+.toast.ok{border-color:rgba(26,127,55,.4)}
+.toast.err{border-color:rgba(207,34,46,.4)}
+.toast.warn{border-color:rgba(154,111,0,.4)}
 @keyframes toast-in{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
 
 /* ══════════════════════════════════════
@@ -465,6 +472,8 @@ body{
   .header-right .sync-info{display:none}
 }
 
+select.form-input{cursor:pointer;background-image:none}
+
 ::-webkit-scrollbar{width:6px}
 ::-webkit-scrollbar-track{background:var(--bg)}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
@@ -474,17 +483,17 @@ body{
 <body>
 
 <!-- ═══════════════════════════════════════
-     SCREEN: FIRST SETUP (master password)
+     SCREEN: FIRST SETUP
 ═══════════════════════════════════════ -->
 <div id="screen-setup" class="screen">
   <div class="auth-card">
     <div class="card-icon">
       <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
-        <circle cx="26" cy="26" r="26" fill="rgba(56,139,253,.08)"/>
-        <path d="M17 24V19a9 9 0 0 1 18 0v5" stroke="#388bfd" stroke-width="1.8" stroke-linecap="round"/>
-        <rect x="12" y="24" width="28" height="19" rx="4" fill="rgba(56,139,253,.12)" stroke="#388bfd" stroke-width="1.4"/>
-        <circle cx="26" cy="33.5" r="3" fill="#388bfd"/>
-        <line x1="26" y1="36.5" x2="26" y2="39.5" stroke="#388bfd" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="26" cy="26" r="26" fill="rgba(26,111,212,0.08)"/>
+        <path d="M17 24V19a9 9 0 0 1 18 0v5" stroke="#1a6fd4" stroke-width="1.8" stroke-linecap="round"/>
+        <rect x="12" y="24" width="28" height="19" rx="4" fill="rgba(26,111,212,0.10)" stroke="#1a6fd4" stroke-width="1.4"/>
+        <circle cx="26" cy="33.5" r="3" fill="#1a6fd4"/>
+        <line x1="26" y1="36.5" x2="26" y2="39.5" stroke="#1a6fd4" stroke-width="2" stroke-linecap="round"/>
       </svg>
     </div>
     <div class="card-title">Créer le Coffre-Fort</div>
@@ -499,8 +508,8 @@ body{
         </button>
       </div>
       <div class="strength-bar" id="setup-bar">
-        <div class="s-seg" id="sb1"></div><div class="s-seg" id="sb2"></div>
-        <div class="s-seg" id="sb3"></div><div class="s-seg" id="sb4"></div><div class="s-seg" id="sb5"></div>
+        <div class="s-seg"></div><div class="s-seg"></div>
+        <div class="s-seg"></div><div class="s-seg"></div><div class="s-seg"></div>
       </div>
       <div class="strength-lbl" id="setup-lbl">—</div>
     </div>
@@ -535,11 +544,11 @@ body{
   <div class="auth-card">
     <div class="card-icon">
       <svg width="54" height="54" viewBox="0 0 54 54" fill="none">
-        <circle cx="27" cy="27" r="27" fill="rgba(56,139,253,.06)"/>
-        <path d="M18 25V19.5a9 9 0 0 1 18 0V25" stroke="#388bfd" stroke-width="1.8" stroke-linecap="round"/>
-        <rect x="13" y="25" width="28" height="20" rx="4.5" fill="rgba(56,139,253,.1)" stroke="#388bfd" stroke-width="1.4"/>
-        <circle cx="27" cy="35" r="3.5" fill="#388bfd"/>
-        <line x1="27" y1="38.5" x2="27" y2="41.5" stroke="#388bfd" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="27" cy="27" r="27" fill="rgba(26,111,212,0.07)"/>
+        <path d="M18 25V19.5a9 9 0 0 1 18 0V25" stroke="#1a6fd4" stroke-width="1.8" stroke-linecap="round"/>
+        <rect x="13" y="25" width="28" height="20" rx="4.5" fill="rgba(26,111,212,0.08)" stroke="#1a6fd4" stroke-width="1.4"/>
+        <circle cx="27" cy="35" r="3.5" fill="#1a6fd4"/>
+        <line x1="27" y1="38.5" x2="27" y2="41.5" stroke="#1a6fd4" stroke-width="2" stroke-linecap="round"/>
       </svg>
     </div>
     <div class="card-title">Coffre-Fort</div>
@@ -555,7 +564,7 @@ body{
         </button>
       </div>
       <div class="err-msg" id="unlock-err">Mot de passe incorrect.</div>
-      <div class="err-msg show" id="unlock-att" style="display:none;color:var(--orange)"></div>
+      <div class="err-msg" id="unlock-att" style="color:var(--orange)"></div>
     </div>
 
     <button class="btn btn-primary btn-full" onclick="doUnlock()" id="unlock-btn">
@@ -576,7 +585,7 @@ body{
 <div id="screen-github" class="screen">
   <div class="auth-card" style="max-width:500px">
     <div class="card-icon">
-      <svg width="44" height="44" viewBox="0 0 24 24" fill="var(--text)" style="opacity:.9">
+      <svg width="44" height="44" viewBox="0 0 24 24" fill="var(--text)" style="opacity:.8">
         <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.6.113.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/>
       </svg>
     </div>
@@ -597,7 +606,7 @@ body{
         <div class="step-body">
           <h4>Générer un Personal Access Token</h4>
           <p>Settings → Developer settings → Personal access tokens → Fine-grained.<br>
-          Permission requise : <strong>Contents → Read & write</strong>.<br>
+          Permission requise : <strong>Contents → Read &amp; write</strong>.<br>
           <a href="https://github.com/settings/personal-access-tokens/new" target="_blank">Créer un token →</a></p>
         </div>
       </div>
@@ -647,9 +656,9 @@ body{
   <header class="app-header">
     <div class="logo">
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-        <path d="M5 9V6a5 5 0 0 1 10 0v3" stroke="#388bfd" stroke-width="1.6" stroke-linecap="round"/>
-        <rect x="3" y="9" width="14" height="10" rx="3" fill="rgba(56,139,253,.15)" stroke="#388bfd" stroke-width="1.3"/>
-        <circle cx="10" cy="14" r="2" fill="#388bfd"/>
+        <path d="M5 9V6a5 5 0 0 1 10 0v3" stroke="#1a6fd4" stroke-width="1.6" stroke-linecap="round"/>
+        <rect x="3" y="9" width="14" height="10" rx="3" fill="rgba(26,111,212,0.12)" stroke="#1a6fd4" stroke-width="1.3"/>
+        <circle cx="10" cy="14" r="2" fill="#1a6fd4"/>
       </svg>
       Coffre-Fort
       <span class="logo-badge" id="sync-badge">Local</span>
@@ -789,8 +798,8 @@ body{
           </button>
         </div>
         <div class="strength-bar" id="e-bar">
-          <div class="s-seg" id="eb1"></div><div class="s-seg" id="eb2"></div>
-          <div class="s-seg" id="eb3"></div><div class="s-seg" id="eb4"></div><div class="s-seg" id="eb5"></div>
+          <div class="s-seg"></div><div class="s-seg"></div>
+          <div class="s-seg"></div><div class="s-seg"></div><div class="s-seg"></div>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">
           <div class="strength-lbl" id="e-lbl">—</div>
@@ -799,7 +808,7 @@ body{
       </div>
       <div class="form-group">
         <div class="form-label">Catégorie</div>
-        <select id="e-cat" class="form-input form-input-plain" style="cursor:pointer">
+        <select id="e-cat" class="form-input form-input-plain">
           <option value="web">Sites Web</option>
           <option value="email">Email</option>
           <option value="finance">Finance</option>
@@ -847,8 +856,8 @@ body{
         <label class="gen-opt"><input type="checkbox" id="g-sy" checked onchange="genPw()"> Symboles (!@#…)</label>
       </div>
       <div class="strength-bar" id="gen-bar">
-        <div class="s-seg" id="gb1"></div><div class="s-seg" id="gb2"></div>
-        <div class="s-seg" id="gb3"></div><div class="s-seg" id="gb4"></div><div class="s-seg" id="gb5"></div>
+        <div class="s-seg"></div><div class="s-seg"></div>
+        <div class="s-seg"></div><div class="s-seg"></div><div class="s-seg"></div>
       </div>
       <div class="strength-lbl" id="gen-lbl">—</div>
     </div>
@@ -917,7 +926,7 @@ const LS = {
   VERIFY:  'cf2_verify',
   DATA:    'cf2_data',
   GH_REPO: 'cf2_gh_repo',
-  GH_TOK:  'cf2_gh_token',   // stored encrypted
+  GH_TOK:  'cf2_gh_token',
   LAST_SHA:'cf2_last_sha',
   LAST_SYNC:'cf2_last_sync',
 };
@@ -928,10 +937,10 @@ const ITER       = 100_000;
 // ══════════════════════════════════════════════
 //  STATE
 // ══════════════════════════════════════════════
-let sessionKey = null;   // CryptoKey in RAM only
+let sessionKey = null;
 let vault      = [];
 let ghRepo     = '';
-let ghToken    = '';     // in RAM only after decryption
+let ghToken    = '';
 let currentCat = 'all';
 let lastGenPw  = '';
 let failedAttempts = 0;
@@ -1011,7 +1020,7 @@ async function doSetup() {
   vault = [];
   await saveLocal();
   toast('Coffre créé avec succès','ok');
-  show('screen-github'); // invite to configure GitHub
+  show('screen-github');
 }
 
 // ══════════════════════════════════════════════
@@ -1035,7 +1044,6 @@ async function doUnlock() {
     sessionKey = key;
     failedAttempts = 0;
 
-    // Decrypt GitHub token if stored
     const encTok = localStorage.getItem(LS.GH_TOK);
     const repo   = localStorage.getItem(LS.GH_REPO);
     if (encTok && repo) {
@@ -1045,7 +1053,6 @@ async function doUnlock() {
     await loadLocal();
     enterApp();
 
-    // Auto-pull from GitHub after unlock
     if (ghToken && ghRepo) {
       setTimeout(() => doSync(), 800);
     }
@@ -1054,7 +1061,7 @@ async function doUnlock() {
     errEl.classList.add('show');
     const attEl = document.getElementById('unlock-att');
     if (failedAttempts >= 3) {
-      attEl.style.display = 'block';
+      attEl.classList.add('show');
       attEl.textContent = `Tentatives : ${failedAttempts}/5`;
     }
     if (failedAttempts >= 5) {
@@ -1084,7 +1091,6 @@ function doLock() {
   setTimeout(() => document.getElementById('unlock-p').focus(), 100);
 }
 
-// Auto-lock 15 min
 function resetLockTimer() {
   clearTimeout(lockTimer);
   lockTimer = setTimeout(() => { toast('Verrouillage automatique (15 min)','warn'); doLock(); }, 15*60*1000);
@@ -1107,47 +1113,50 @@ async function loadLocal() {
 }
 
 // ══════════════════════════════════════════════
-//  GITHUB SYNC
+//  GITHUB SYNC  ← BUG CORRIGÉ ICI
 // ══════════════════════════════════════════════
 function setSyncUI(state, msg) {
-  const bar   = document.getElementById('sync-bar');
-  const dot   = document.getElementById('sync-dot');
-  const barMsg= document.getElementById('sync-bar-msg');
-  const badge = document.getElementById('sync-badge');
+  const bar    = document.getElementById('sync-bar');
+  const dot    = document.getElementById('sync-dot');
+  const barMsg = document.getElementById('sync-bar-msg');
+  const badge  = document.getElementById('sync-badge');
 
   bar.style.display = 'flex';
   barMsg.textContent = msg;
 
-  dot.className = 'sync-dot';
+  // Reset — on vide les classes avant de réattribuer
+  dot.className   = 'sync-dot';
   badge.className = 'logo-badge';
+  badge.style.cssText = '';
 
   if (state === 'ok') {
-    dot.classList.add('green'); badge.textContent = 'Sync GitHub'; badge.classList.add('');
-    badge.style.cssText = 'background:rgba(63,185,80,.15);color:#3fb950;border:1px solid rgba(63,185,80,.3)';
+    dot.classList.add('green');
+    badge.textContent = 'Sync GitHub';
+    badge.style.cssText = 'background:rgba(26,127,55,.12);color:#1a7f37;border:1px solid rgba(26,127,55,.28)';
   } else if (state === 'err') {
-    dot.classList.add('red'); badge.textContent = 'Hors ligne';
-    badge.style.cssText = 'background:rgba(248,81,73,.12);color:#f85149;border:1px solid rgba(248,81,73,.3)';
+    dot.classList.add('red');
+    badge.textContent = 'Hors ligne';
+    badge.style.cssText = 'background:rgba(207,34,46,.08);color:#cf222e;border:1px solid rgba(207,34,46,.28)';
   } else if (state === 'syncing') {
-    dot.classList.add('spin'); badge.textContent = 'Sync…';
-    badge.style.cssText = 'background:rgba(212,168,67,.15);color:#d4a843;border:1px solid rgba(212,168,67,.3)';
+    dot.classList.add('spin');
+    badge.textContent = 'Sync\u2026';
+    badge.style.cssText = 'background:rgba(154,111,0,.10);color:#9a6f00;border:1px solid rgba(154,111,0,.28)';
   } else {
     badge.textContent = 'Local';
-    badge.style.cssText = '';
   }
 
   const lastSync = localStorage.getItem(LS.LAST_SYNC);
   if (lastSync) {
-    document.getElementById('sync-bar-time').textContent = 'Dernière sync: ' + new Date(lastSync).toLocaleTimeString('fr-FR');
+    document.getElementById('sync-bar-time').textContent = 'Dernière sync\u00a0: ' + new Date(lastSync).toLocaleTimeString('fr-FR');
     document.getElementById('st-sync').textContent = new Date(lastSync).toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'});
   }
 }
 
 async function doSync() {
   if (!ghToken || !ghRepo) { toast('GitHub non configuré','warn'); return; }
-  setSyncUI('syncing', 'Synchronisation en cours…');
+  setSyncUI('syncing', 'Synchronisation en cours\u2026');
 
   try {
-    // 1. Fetch existing file from GitHub
     const getRes = await fetch(`https://api.github.com/repos/${ghRepo}/contents/${GH_FILE}`, {
       headers: { Authorization:`token ${ghToken}`, Accept:'application/vnd.github.v3+json' }
     });
@@ -1159,14 +1168,12 @@ async function doSync() {
       const meta = await getRes.json();
       remoteSha  = meta.sha;
       const remoteBlob = atob(meta.content.replace(/\n/g,''));
-      // remoteBlob is our encrypted JSON string
       try {
         const plain = await dec(sessionKey, remoteBlob);
         remoteVault = JSON.parse(plain);
       } catch { remoteVault = null; }
     }
 
-    // 2. Merge: remote wins on newer updatedAt
     if (remoteVault && Array.isArray(remoteVault)) {
       const merged = mergeVaults(vault, remoteVault);
       if (JSON.stringify(merged) !== JSON.stringify(vault)) {
@@ -1176,7 +1183,6 @@ async function doSync() {
       }
     }
 
-    // 3. Push merged vault
     const plain  = JSON.stringify(vault);
     const blob   = await enc(sessionKey, plain);
     const b64    = btoa(unescape(encodeURIComponent(blob)));
@@ -1203,8 +1209,8 @@ async function doSync() {
     setSyncUI('ok', 'Synchronisé avec GitHub');
     toast('Coffre synchronisé avec GitHub','ok');
   } catch(e) {
-    setSyncUI('err', 'Erreur de synchronisation: ' + e.message);
-    toast('Erreur sync GitHub: ' + e.message,'err');
+    setSyncUI('err', 'Erreur de synchronisation\u00a0: ' + e.message);
+    toast('Erreur sync GitHub\u00a0: ' + e.message,'err');
   }
 }
 
@@ -1238,16 +1244,15 @@ async function saveGithubConfig() {
   err.classList.remove('show');
   if (!repo || !token) { err.classList.add('show'); return; }
 
-  btn.textContent = 'Test en cours…'; btn.disabled = true;
+  btn.textContent = 'Test en cours\u2026'; btn.disabled = true;
 
-  // Test token
   try {
     const res = await fetch(`https://api.github.com/repos/${repo}`, {
       headers:{ Authorization:`token ${token}`, Accept:'application/vnd.github.v3+json' }
     });
     if (!res.ok) throw new Error('Accès refusé');
 
-    ghRepo  = repo; ghToken = token;
+    ghRepo = repo; ghToken = token;
     localStorage.setItem(LS.GH_REPO, repo);
     localStorage.setItem(LS.GH_TOK, await enc(sessionKey, token));
 
@@ -1304,8 +1309,10 @@ function disconnectGH() {
   closeOv('ov-gh');
   document.getElementById('sync-bar').style.display = 'none';
   document.getElementById('sync-btn').style.display = 'none';
-  document.getElementById('sync-badge').textContent = 'Local';
-  document.getElementById('sync-badge').style.cssText = '';
+  const badge = document.getElementById('sync-badge');
+  badge.textContent = 'Local';
+  badge.className = 'logo-badge';
+  badge.style.cssText = '';
   toast('GitHub déconnecté','warn');
 }
 
@@ -1365,7 +1372,6 @@ async function saveEntry() {
   renderEntries(); updateStats(); updateCounts();
   toast(idx >= 0 ? 'Identifiant mis à jour' : 'Identifiant ajouté','ok');
 
-  // Auto-sync
   if (ghToken && ghRepo) setTimeout(() => doSync(), 1000);
 }
 
@@ -1386,7 +1392,7 @@ const CAT = {
   social:  {l:'Social',  c:'cat-social'},
   finance: {l:'Finance', c:'cat-finance'},
   email:   {l:'Email',   c:'cat-email'},
-  medical: {l:'Médical', c:'cat-medical'},
+  medical: {l:'M\u00e9dical', c:'cat-medical'},
   other:   {l:'Autre',   c:'cat-other'},
 };
 
@@ -1403,7 +1409,7 @@ function renderEntries() {
   if (!list.length) {
     cont.innerHTML = `<div class="empty">
       <svg width="44" height="44" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-      <h3>${vault.length ? 'Aucun résultat' : 'Coffre vide'}</h3>
+      <h3>${vault.length ? 'Aucun r\u00e9sultat' : 'Coffre vide'}</h3>
       <p>${vault.length ? 'Modifiez la recherche' : 'Ajoutez votre premier identifiant'}</p>
     </div>`;
     return;
@@ -1414,14 +1420,14 @@ function renderEntries() {
 function entryCard(e) {
   const cat = CAT[e.category] || CAT.other;
   const ini = (e.title||'?').slice(0,2).toUpperCase();
-  const masked = '•'.repeat(Math.min((e.password||'').length||12,16));
+  const masked = '\u2022'.repeat(Math.min((e.password||'').length||12,16));
   const notes  = e.notes ? `<div class="ec-notes">${h(e.notes)}</div>` : '';
   return `<div class="entry-card">
     <div class="ec-head">
       <div class="ec-avatar">${ini}</div>
       <div class="ec-info">
         <div class="ec-title">${h(e.title)}</div>
-        <div class="ec-url">${h(e.url||'—')}</div>
+        <div class="ec-url">${h(e.url||'\u2014')}</div>
       </div>
       <span class="ec-cat ${cat.c}">${cat.l}</span>
     </div>
@@ -1429,7 +1435,7 @@ function entryCard(e) {
       <div class="ec-field">
         <div class="ec-flbl">Login</div>
         <div class="ec-fval">${h(e.login)}</div>
-        <button class="btn-icon green" onclick="cp(${q_(e.login)},'Login copié')" title="Copier">
+        <button class="btn-icon green" onclick="cp(${q_(e.login)},'Login copi\u00e9')" title="Copier">
           <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
         </button>
       </div>
@@ -1439,7 +1445,7 @@ function entryCard(e) {
         <button class="btn-icon" onclick="togglePw('${e.id}',${q_(e.password||'')})" title="Afficher">
           <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
         </button>
-        <button class="btn-icon green" onclick="cp(${q_(e.password||'')},'MDP copié')" title="Copier">
+        <button class="btn-icon green" onclick="cp(${q_(e.password||'')},'MDP copi\u00e9')" title="Copier">
           <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
         </button>
       </div>
@@ -1498,12 +1504,12 @@ function cp(val, msg) {
 function togglePw(id, pw) {
   const el = document.getElementById('pw-'+id); if (!el) return;
   if (shownPws[id]) {
-    el.textContent = '•'.repeat(Math.min(pw.length,16));
+    el.textContent = '\u2022'.repeat(Math.min(pw.length,16));
     el.classList.add('masked'); delete shownPws[id];
   } else {
     el.textContent = pw; el.classList.remove('masked');
     shownPws[id] = true;
-    setTimeout(() => { el.textContent='•'.repeat(Math.min(pw.length,16)); el.classList.add('masked'); delete shownPws[id]; }, 5000);
+    setTimeout(() => { el.textContent='\u2022'.repeat(Math.min(pw.length,16)); el.classList.add('masked'); delete shownPws[id]; }, 5000);
   }
 }
 
@@ -1517,15 +1523,13 @@ function evalStrength(pw) {
   if (/[A-Z]/.test(pw)) s++;
   if (/[0-9]/.test(pw)) s++;
   if (/[^A-Za-z0-9]/.test(pw)) s++;
-  const labels = ['','Très faible','Faible','Moyen','Fort','Très fort'];
-  const colors = ['','#f85149','#d29922','#e3b341','#3fb950','#1a7f37'];
-  return { s, label:labels[s]||'—', color:colors[s]||'' };
+  const labels = ['','Tr\u00e8s faible','Faible','Moyen','Fort','Tr\u00e8s fort'];
+  const colors = ['','#cf222e','#b45309','#9a6f00','#1a7f37','#0f5a28'];
+  return { s, label:labels[s]||'\u2014', color:colors[s]||'' };
 }
 
 function evalBar(pw, barId, lblId) {
   const { s, label, color } = evalStrength(pw);
-  const prefix = barId.replace('bar','').replace('-','');
-  // find segments by iterating
   const bar = document.getElementById(barId);
   if (!bar) return;
   bar.querySelectorAll('.s-seg').forEach((seg,i) => {
@@ -1547,7 +1551,7 @@ function genPw() {
   if (document.getElementById('g-lo').checked) chars += 'abcdefghijklmnopqrstuvwxyz';
   if (document.getElementById('g-nu').checked) chars += '0123456789';
   if (document.getElementById('g-sy').checked) chars += '!@#$%^&*()_+-=[]{}|;:,.<>?';
-  if (!chars) { document.getElementById('gen-out').textContent = 'Sélectionnez au moins un type'; return; }
+  if (!chars) { document.getElementById('gen-out').textContent = 'S\u00e9lectionnez au moins un type'; return; }
   const arr  = new Uint32Array(len);
   crypto.getRandomValues(arr);
   lastGenPw  = Array.from(arr).map(n=>chars[n%chars.length]).join('');
@@ -1555,7 +1559,7 @@ function genPw() {
   evalBar(lastGenPw,'gen-bar','gen-lbl');
 }
 
-function copyGen()  { if(lastGenPw) cp(lastGenPw,'Mot de passe copié'); }
+function copyGen()  { if(lastGenPw) cp(lastGenPw,'Mot de passe copi\u00e9'); }
 function useGen()   { if(!lastGenPw) return; document.getElementById('e-pass').value=lastGenPw; evalBar(lastGenPw,'e-bar','e-lbl'); closeOv('ov-gen'); openOv('ov-entry'); }
 function fillGen()  { openOv('ov-gen'); genPw(); }
 
@@ -1584,9 +1588,9 @@ function toggleVis(id, btn) {
 // ══════════════════════════════════════════════
 function toast(msg, type='ok') {
   const icons = {
-    ok:   '<svg width="13" height="13" fill="none" stroke="#3fb950" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>',
-    err:  '<svg width="13" height="13" fill="none" stroke="#f85149" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
-    warn: '<svg width="13" height="13" fill="none" stroke="#d29922" stroke-width="2.5" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+    ok:   '<svg width="13" height="13" fill="none" stroke="#1a7f37" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>',
+    err:  '<svg width="13" height="13" fill="none" stroke="#cf222e" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
+    warn: '<svg width="13" height="13" fill="none" stroke="#b45309" stroke-width="2.5" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
   };
   const t = document.createElement('div');
   t.className = 'toast ' + type;
