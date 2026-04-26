@@ -1171,7 +1171,8 @@ function b64ToStr(b64) {
 }
 
 // Push un fichier texte sur GitHub (crée ou met à jour) - FIX SHA
-async function ghPut(filename, content, shaKey) {
+// Push un fichier texte sur GitHub (crée ou met à jour) - AVEC AUTO-RÉPARATION
+async function ghPut(filename, content, shaKey, isRetry = false) {
   let sha = localStorage.getItem(shaKey);
   
   // Si le SHA n'est pas en local, on interroge GitHub pour l'obtenir
@@ -1201,7 +1202,17 @@ async function ghPut(filename, content, shaKey) {
     },
     body: JSON.stringify(body)
   });
-  if (!res.ok) { const e = await res.json(); throw new Error(e.message || 'GitHub PUT error'); }
+
+  if (!res.ok) { 
+    const e = await res.json(); 
+    // AUTO-RÉPARATION : Si GitHub dit que le SHA ne correspond pas, on efface le faux SHA et on réessaie 1 seule fois.
+    if (!isRetry && e.message && e.message.includes('does not match')) {
+      localStorage.removeItem(shaKey);
+      return ghPut(filename, content, shaKey, true);
+    }
+    throw new Error(e.message || 'GitHub PUT error'); 
+  }
+  
   const data = await res.json();
   localStorage.setItem(shaKey, data.content.sha);
 }
