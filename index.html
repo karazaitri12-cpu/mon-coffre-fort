@@ -483,10 +483,12 @@ select.form-input{cursor:pointer;background-image:none}
 <body>
 
 <!-- ═══════════════════════════════════════
-     SCREEN: FIRST SETUP
+     SCREEN: FIRST SETUP / RESTORE
 ═══════════════════════════════════════ -->
 <div id="screen-setup" class="screen">
-  <div class="auth-card">
+  
+  <!-- CREATE VAULT CARD -->
+  <div class="auth-card" id="setup-create-card">
     <div class="card-icon">
       <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
         <circle cx="26" cy="26" r="26" fill="rgba(26,111,212,0.08)"/>
@@ -529,12 +531,54 @@ select.form-input{cursor:pointer;background-image:none}
       <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
       Créer le coffre
     </button>
+    <button class="btn btn-ghost btn-full" onclick="toggleSetup('restore')" style="margin-top:8px">
+      Restaurer un coffre depuis GitHub
+    </button>
 
     <div class="info-box blue" style="margin-top:16px">
       <strong>Chiffrement AES-256-GCM + PBKDF2 (100 000 itérations).</strong>
       Le mot de passe maître génère une clé en RAM uniquement. En cas de perte, le coffre est irrécupérable.
     </div>
   </div>
+
+  <!-- RESTORE VAULT CARD -->
+  <div class="auth-card" id="setup-restore-card" style="display:none">
+    <div class="card-icon">
+      <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
+        <circle cx="26" cy="26" r="26" fill="rgba(154,111,0,0.1)"/>
+        <path d="M26 16v10l6 6" stroke="#9a6f00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M26 40c-7.732 0-14-6.268-14-14s6.268-14 14-14" stroke="#9a6f00" stroke-width="2" stroke-linecap="round" stroke-dasharray="4 4"/>
+      </svg>
+    </div>
+    <div class="card-title">Restaurer un Coffre</div>
+    <div class="card-sub">Importez un coffre existant depuis GitHub sur cet appareil.</div>
+
+    <div class="form-group">
+      <div class="form-label">Propriétaire / Repo</div>
+      <input type="text" id="r-repo" class="form-input form-input-plain" placeholder="votre-login/mon-coffre-fort">
+    </div>
+    <div class="form-group">
+      <div class="form-label">Personal Access Token</div>
+      <div class="form-wrap">
+        <input type="password" id="r-token" class="form-input" placeholder="github_pat_…">
+        <button class="eye-btn" onclick="toggleVis('r-token',this)" type="button">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="err-msg" id="r-err">Dépôt ou fichiers de sécurité introuvables.</div>
+
+    <button class="btn btn-success btn-full" onclick="doRestore()" id="r-btn" style="margin-top:4px">
+      Rechercher le coffre
+    </button>
+    <button class="btn btn-ghost btn-full" onclick="toggleSetup('create')" style="margin-top:8px">
+      Retour
+    </button>
+    <div class="info-box gold" style="margin-top:16px; font-size:11.5px">
+      Ceci téléchargera vos clés de sécurité depuis GitHub. Vous devrez ensuite taper votre mot de passe maître.
+    </div>
+  </div>
+
 </div>
 
 <!-- ═══════════════════════════════════════
@@ -580,7 +624,7 @@ select.form-input{cursor:pointer;background-image:none}
 </div>
 
 <!-- ═══════════════════════════════════════
-     SCREEN: GITHUB CONFIG
+     SCREEN: GITHUB CONFIG (First Time)
 ═══════════════════════════════════════ -->
 <div id="screen-github" class="screen">
   <div class="auth-card" style="max-width:500px">
@@ -1000,8 +1044,13 @@ function show(id) {
 }
 
 // ══════════════════════════════════════════════
-//  SETUP
+//  SETUP & RESTORE
 // ══════════════════════════════════════════════
+function toggleSetup(mode) {
+  document.getElementById('setup-create-card').style.display = mode === 'create' ? 'block' : 'none';
+  document.getElementById('setup-restore-card').style.display = mode === 'restore' ? 'block' : 'none';
+}
+
 async function doSetup() {
   const p1 = document.getElementById('s-p1').value;
   const p2 = document.getElementById('s-p2').value;
@@ -1023,6 +1072,53 @@ async function doSetup() {
   show('screen-github');
 }
 
+// NOUVEAUTÉ : Restaurer depuis GitHub
+async function doRestore() {
+  const repo = document.getElementById('r-repo').value.trim();
+  const token = document.getElementById('r-token').value.trim();
+  const err = document.getElementById('r-err');
+  const btn = document.getElementById('r-btn');
+  err.classList.remove('show');
+  if (!repo || !token) { err.classList.add('show'); return; }
+
+  btn.textContent = 'Recherche en cours...'; btn.disabled = true;
+
+  try {
+    // Récupérer le sel depuis GitHub
+    let res = await fetch(`https://api.github.com/repos/${repo}/contents/vault.salt.txt`, {
+      headers:{ Authorization:`token ${token}`, Accept:'application/vnd.github.v3+json' }
+    });
+    if (!res.ok) throw new Error("Impossible de trouver le coffre (Sel introuvable).");
+    const saltMeta = await res.json();
+    const remoteSalt = b64ToStr(saltMeta.content).trim();
+
+    // Récupérer le fichier de vérification
+    res = await fetch(`https://api.github.com/repos/${repo}/contents/vault.verify.txt`, {
+      headers:{ Authorization:`token ${token}`, Accept:'application/vnd.github.v3+json' }
+    });
+    if (!res.ok) throw new Error("Fichier de vérification introuvable.");
+    const verifyMeta = await res.json();
+    const remoteVerify = b64ToStr(verifyMeta.content).trim();
+
+    // Enregistrer en local
+    localStorage.setItem(LS.SALT, remoteSalt);
+    localStorage.setItem('cf2_sha_salt', saltMeta.sha);
+    localStorage.setItem(LS.VERIFY, remoteVerify);
+    localStorage.setItem('cf2_sha_verify', verifyMeta.sha);
+    
+    // Garder le repo et le token temporairement (sans le chiffrer car on n'a pas encore le mdp)
+    localStorage.setItem(LS.GH_REPO, repo);
+    localStorage.setItem(LS.GH_TOK, "RAW_" + token);
+
+    toast('Coffre trouvé ! Veuillez vous connecter.','ok');
+    show('screen-lock');
+  } catch (e) {
+    err.textContent = e.message;
+    err.classList.add('show');
+    btn.textContent = 'Rechercher le coffre'; btn.disabled = false;
+  }
+}
+
 // ══════════════════════════════════════════════
 //  UNLOCK
 // ══════════════════════════════════════════════
@@ -1035,48 +1131,14 @@ async function doUnlock() {
   btn.disabled = true; btn.textContent = 'V\u00e9rification\u2026';
 
   try {
-    // ── Récupérer le sel : localStorage d'abord, sinon GitHub (nouveau portable)
     let saltB64 = localStorage.getItem(LS.SALT);
-    if (!saltB64) {
-      const repo = localStorage.getItem(LS.GH_REPO);
-      if (!repo) throw new Error('no_salt');
-      btn.textContent = 'R\u00e9cup\u00e9ration du sel\u2026';
-      
-      const res = await fetch(
-        `https://api.github.com/repos/${repo}/contents/vault.salt.txt`,
-        { headers: { Accept: 'application/vnd.github.v3+json' } }
-      );
-      if (!res.ok) throw new Error('no_salt');
-      const meta = await res.json();
-      saltB64 = b64ToStr(meta.content).trim();
-      localStorage.setItem(LS.SALT, saltB64);
-      localStorage.setItem('cf2_sha_salt', meta.sha); // FIX : Sauvegarde du SHA
-
-      btn.textContent = 'V\u00e9rification\u2026';
-    }
+    if (!saltB64) throw new Error('no_salt');
 
     const salt = Uint8Array.from(atob(saltB64), c => c.charCodeAt(0));
     const key  = await deriveKey(pass, salt);
 
-    // ── Vérifier le mot de passe
-    // Sur un nouvel appareil, LS.VERIFY est absent : on le reconstruit depuis GitHub
     let verifyBlob = localStorage.getItem(LS.VERIFY);
-    if (!verifyBlob) {
-      const repo = localStorage.getItem(LS.GH_REPO);
-      if (repo) {
-        const res = await fetch(
-          `https://api.github.com/repos/${repo}/contents/vault.verify.txt`,
-          { headers: { Accept: 'application/vnd.github.v3+json' } }
-        );
-        if (res.ok) {
-          const meta = await res.json();
-          verifyBlob = b64ToStr(meta.content).trim();
-          localStorage.setItem(LS.VERIFY, verifyBlob);
-          localStorage.setItem('cf2_sha_verify', meta.sha); // FIX : Sauvegarde du SHA
-        }
-      }
-      if (!verifyBlob) throw new Error('no_verify');
-    }
+    if (!verifyBlob) throw new Error('no_verify');
 
     const txt = await dec(key, verifyBlob);
     if (txt !== VERIFY_TXT) throw new Error('bad');
@@ -1084,10 +1146,17 @@ async function doUnlock() {
     sessionKey = key;
     failedAttempts = 0;
 
+    // Gérer le token de GitHub (s'il vient d'une restauration RAW, on le chiffre maintenant)
     const encTok = localStorage.getItem(LS.GH_TOK);
     const repo   = localStorage.getItem(LS.GH_REPO);
     if (encTok && repo) {
-      try { ghToken = await dec(sessionKey, encTok); ghRepo = repo; } catch {}
+      if (encTok.startsWith("RAW_")) {
+          ghToken = encTok.substring(4);
+          ghRepo = repo;
+          localStorage.setItem(LS.GH_TOK, await enc(sessionKey, ghToken)); // Chiffrement !
+      } else {
+          try { ghToken = await dec(sessionKey, encTok); ghRepo = repo; } catch {}
+      }
     }
 
     await loadLocal();
@@ -1097,16 +1166,11 @@ async function doUnlock() {
       setTimeout(() => doSync(), 800);
     }
   } catch(err) {
-    const isConfig = err.message === 'no_salt' || err.message === 'no_verify';
-    failedAttempts += isConfig ? 0 : 1;
-    if (isConfig) {
-      errEl.textContent = 'Nouvel appareil d\u00e9tect\u00e9. Configurez GitHub pour restaurer le coffre.';
-    } else {
-      errEl.textContent = 'Mot de passe incorrect.';
-    }
+    failedAttempts += 1;
+    errEl.textContent = 'Mot de passe incorrect.';
     errEl.classList.add('show');
     const attEl = document.getElementById('unlock-att');
-    if (!isConfig && failedAttempts >= 3) {
+    if (failedAttempts >= 3) {
       attEl.classList.add('show');
       attEl.textContent = `Tentatives\u00a0: ${failedAttempts}/5`;
     }
@@ -1159,7 +1223,7 @@ async function loadLocal() {
 }
 
 // ══════════════════════════════════════════════
-//  HELPERS BASE64 (safe pour Unicode)
+//  HELPERS BASE64
 // ══════════════════════════════════════════════
 function strToB64(str) {
   return btoa(String.fromCharCode(...new TextEncoder().encode(str)));
@@ -1170,12 +1234,12 @@ function b64ToStr(b64) {
   return new TextDecoder().decode(bytes);
 }
 
-// Push un fichier texte sur GitHub (crée ou met à jour) - FIX SHA
-// Push un fichier texte sur GitHub (crée ou met à jour) - AVEC AUTO-RÉPARATION
+// ══════════════════════════════════════════════
+//  GITHUB API
+// ══════════════════════════════════════════════
 async function ghPut(filename, content, shaKey, isRetry = false) {
   let sha = localStorage.getItem(shaKey);
   
-  // Si le SHA n'est pas en local, on interroge GitHub pour l'obtenir
   if (!sha) {
     const checkRes = await fetch(`https://api.github.com/repos/${ghRepo}/contents/${filename}`, {
       headers: { Authorization: `token ${ghToken}`, Accept: 'application/vnd.github.v3+json' }
@@ -1205,7 +1269,6 @@ async function ghPut(filename, content, shaKey, isRetry = false) {
 
   if (!res.ok) { 
     const e = await res.json(); 
-    // AUTO-RÉPARATION : Si GitHub dit que le SHA ne correspond pas, on efface le faux SHA et on réessaie 1 seule fois.
     if (!isRetry && e.message && e.message.includes('does not match')) {
       localStorage.removeItem(shaKey);
       return ghPut(filename, content, shaKey, true);
@@ -1217,7 +1280,6 @@ async function ghPut(filename, content, shaKey, isRetry = false) {
   localStorage.setItem(shaKey, data.content.sha);
 }
 
-// Lit un fichier texte sur GitHub, renvoie null si absent
 async function ghGet(filename) {
   const res = await fetch(`https://api.github.com/repos/${ghRepo}/contents/${filename}`, {
     headers: { Authorization: `token ${ghToken}`, Accept: 'application/vnd.github.v3+json' }
@@ -1282,7 +1344,12 @@ async function doSync() {
     if (remote.content) {
       try {
         remoteVault = JSON.parse(await dec(sessionKey, remote.content.trim()));
-      } catch { remoteVault = null; }
+      } catch {
+        // SÉCURITÉ ANTI-DESTRUCTION :
+        // Si le déchiffrement échoue, c'est que l'appareil a une mauvaise clé.
+        // On stoppe tout pour éviter d'écraser les vraies données sur GitHub !
+        throw new Error("Clé de sécurité incorrecte. Ce téléphone n'a pas été restauré correctement.");
+      }
     }
     if (remote.sha) localStorage.setItem(LS.LAST_SHA, remote.sha);
 
@@ -1309,7 +1376,6 @@ async function doSync() {
   }
 }
 
-// FIX: Gestion des suppressions par Tombstone pour la Sync
 function mergeVaults(local, remote) {
   const map = {};
   [...local, ...remote].forEach(e => {
@@ -1317,7 +1383,6 @@ function mergeVaults(local, remote) {
       map[e.id] = e;
     }
   });
-  // On retourne TOUS les éléments (y compris les supprimés) pour propager la suppression
   return Object.values(map); 
 }
 
@@ -1472,7 +1537,6 @@ async function saveEntry() {
   if (ghToken && ghRepo) setTimeout(() => doSync(), 1000);
 }
 
-// FIX: Suppression logique (Tombstone) au lieu d'effacer pour la Sync
 async function delEntry(id) {
   if (!confirm('Supprimer définitivement ?')) return;
   
@@ -1500,7 +1564,6 @@ const CAT = {
   other:   {l:'Autre',   c:'cat-other'},
 };
 
-// FIX: On ne rend pas les éléments supprimés (_deleted)
 function renderEntries() {
   const q   = (document.getElementById('q').value || '').toLowerCase();
   const cat = currentCat;
@@ -1575,7 +1638,6 @@ function q_(s){ return JSON.stringify(String(s||'')) }
 // ══════════════════════════════════════════════
 //  STATS
 // ══════════════════════════════════════════════
-// FIX: On ne compte plus les éléments supprimés (_deleted)
 function updateStats() {
   const actifs = vault.filter(e => !e._deleted);
   document.getElementById('st-total').textContent  = actifs.length;
