@@ -1028,17 +1028,58 @@ async function doSetup() {
 // ══════════════════════════════════════════════
 async function doUnlock() {
   if (failedAttempts >= 5) return;
-  const pass = document.getElementById('unlock-p').value;
+  const pass  = document.getElementById('unlock-p').value;
   const errEl = document.getElementById('unlock-err');
   const btn   = document.getElementById('unlock-btn');
   errEl.classList.remove('show');
-  btn.disabled = true; btn.textContent = 'Vérification…';
+  btn.disabled = true; btn.textContent = 'V\u00e9rification\u2026';
 
   try {
-    const saltB64 = localStorage.getItem(LS.SALT);
-    const salt    = Uint8Array.from(atob(saltB64), c => c.charCodeAt(0));
-    const key     = await deriveKey(pass, salt);
-    const txt     = await dec(key, localStorage.getItem(LS.VERIFY));
+    // ── Récupérer le sel : localStorage d'abord, sinon GitHub (nouveau portable)
+    let saltB64 = localStorage.getItem(LS.SALT);
+    if (!saltB64) {
+      // Le sel n'est pas secret (il sert juste à diversifier la dérivation).
+      // On le stocke publiquement sur GitHub pour permettre la restauration
+      // sur un nouvel appareil. vault.salt.txt est lisible sans auth sur repo privé
+      // si on passe le token stocké en clair (avant premier déchiffrement).
+      const repo = localStorage.getItem(LS.GH_REPO);
+      if (!repo) throw new Error('no_salt');
+      btn.textContent = 'R\u00e9cup\u00e9ration du sel\u2026';
+      // vault.salt.txt est public car le sel seul ne compromet rien
+      const res = await fetch(
+        `https://api.github.com/repos/${repo}/contents/vault.salt.txt`,
+        { headers: { Accept: 'application/vnd.github.v3+json' } }
+      );
+      if (!res.ok) throw new Error('no_salt');
+      const meta = await res.json();
+      saltB64 = b64ToStr(meta.content).trim();
+      localStorage.setItem(LS.SALT, saltB64);
+      btn.textContent = 'V\u00e9rification\u2026';
+    }
+
+    const salt = Uint8Array.from(atob(saltB64), c => c.charCodeAt(0));
+    const key  = await deriveKey(pass, salt);
+
+    // ── Vérifier le mot de passe
+    // Sur un nouvel appareil, LS.VERIFY est absent : on le reconstruit depuis GitHub
+    let verifyBlob = localStorage.getItem(LS.VERIFY);
+    if (!verifyBlob) {
+      const repo = localStorage.getItem(LS.GH_REPO);
+      if (repo) {
+        const res = await fetch(
+          `https://api.github.com/repos/${repo}/contents/vault.verify.txt`,
+          { headers: { Accept: 'application/vnd.github.v3+json' } }
+        );
+        if (res.ok) {
+          const meta = await res.json();
+          verifyBlob = b64ToStr(meta.content).trim();
+          localStorage.setItem(LS.VERIFY, verifyBlob);
+        }
+      }
+      if (!verifyBlob) throw new Error('no_verify');
+    }
+
+    const txt = await dec(key, verifyBlob);
     if (txt !== VERIFY_TXT) throw new Error('bad');
 
     sessionKey = key;
@@ -1049,6 +1090,8 @@ async function doUnlock() {
     if (encTok && repo) {
       try { ghToken = await dec(sessionKey, encTok); ghRepo = repo; } catch {}
     }
+    // Sur un nouvel appareil le token n'est pas encore stocké localement ;
+    // la sync sera déclenchée manuellement après configuration GitHub.
 
     await loadLocal();
     enterApp();
@@ -1056,18 +1099,24 @@ async function doUnlock() {
     if (ghToken && ghRepo) {
       setTimeout(() => doSync(), 800);
     }
-  } catch {
-    failedAttempts++;
+  } catch(err) {
+    const isConfig = err.message === 'no_salt' || err.message === 'no_verify';
+    failedAttempts += isConfig ? 0 : 1;
+    if (isConfig) {
+      errEl.textContent = 'Nouvel appareil d\u00e9tect\u00e9. Configurez GitHub pour restaurer le coffre.';
+    } else {
+      errEl.textContent = 'Mot de passe incorrect.';
+    }
     errEl.classList.add('show');
     const attEl = document.getElementById('unlock-att');
-    if (failedAttempts >= 3) {
+    if (!isConfig && failedAttempts >= 3) {
       attEl.classList.add('show');
-      attEl.textContent = `Tentatives : ${failedAttempts}/5`;
+      attEl.textContent = `Tentatives\u00a0: ${failedAttempts}/5`;
     }
     if (failedAttempts >= 5) {
-      btn.textContent = 'Bloqué'; btn.disabled = true;
+      btn.textContent = 'Bloqu\u00e9'; btn.disabled = true;
     } else {
-      btn.textContent = 'Déverrouiller'; btn.disabled = false;
+      btn.textContent = 'D\u00e9verrouiller'; btn.disabled = false;
     }
     document.getElementById('unlock-p').value = '';
   }
@@ -1113,7 +1162,54 @@ async function loadLocal() {
 }
 
 // ══════════════════════════════════════════════
-//  GITHUB SYNC  ← BUG CORRIGÉ ICI
+//  HELPERS BASE64 (safe pour Unicode)
+// ══════════════════════════════════════════════
+// Encode une chaîne quelconque en base64 via UTF-8
+function strToB64(str) {
+  return btoa(String.fromCharCode(...new TextEncoder().encode(str)));
+}
+// Décode un base64 GitHub (peut contenir \n) en chaîne UTF-8
+function b64ToStr(b64) {
+  const clean = b64.replace(/\s/g, '');
+  const bytes = Uint8Array.from(atob(clean), c => c.charCodeAt(0));
+  return new TextDecoder().decode(bytes);
+}
+
+// Push un fichier texte sur GitHub (crée ou met à jour)
+async function ghPut(filename, content, shaKey) {
+  const sha = localStorage.getItem(shaKey);
+  const body = {
+    message: `Sync coffre ${new Date().toISOString()}`,
+    content: strToB64(content)   // contenu du fichier encodé en base64
+  };
+  if (sha) body.sha = sha;
+  const res = await fetch(`https://api.github.com/repos/${ghRepo}/contents/${filename}`, {
+    method: 'PUT',
+    headers: {
+      Authorization: `token ${ghToken}`,
+      Accept: 'application/vnd.github.v3+json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) { const e = await res.json(); throw new Error(e.message || 'GitHub PUT error'); }
+  const data = await res.json();
+  localStorage.setItem(shaKey, data.content.sha);
+}
+
+// Lit un fichier texte sur GitHub, renvoie null si absent
+async function ghGet(filename) {
+  const res = await fetch(`https://api.github.com/repos/${ghRepo}/contents/${filename}`, {
+    headers: { Authorization: `token ${ghToken}`, Accept: 'application/vnd.github.v3+json' }
+  });
+  if (res.status === 404) return { content: null, sha: null };
+  if (!res.ok) throw new Error(`GitHub GET ${filename} : ${res.status}`);
+  const meta = await res.json();
+  return { content: b64ToStr(meta.content), sha: meta.sha };
+}
+
+// ══════════════════════════════════════════════
+//  GITHUB SYNC
 // ══════════════════════════════════════════════
 function setSyncUI(state, msg) {
   const bar    = document.getElementById('sync-bar');
@@ -1124,7 +1220,6 @@ function setSyncUI(state, msg) {
   bar.style.display = 'flex';
   barMsg.textContent = msg;
 
-  // Reset — on vide les classes avant de réattribuer
   dot.className   = 'sync-dot';
   badge.className = 'logo-badge';
   badge.style.cssText = '';
@@ -1147,33 +1242,36 @@ function setSyncUI(state, msg) {
 
   const lastSync = localStorage.getItem(LS.LAST_SYNC);
   if (lastSync) {
-    document.getElementById('sync-bar-time').textContent = 'Dernière sync\u00a0: ' + new Date(lastSync).toLocaleTimeString('fr-FR');
+    document.getElementById('sync-bar-time').textContent = 'Derni\u00e8re sync\u00a0: ' + new Date(lastSync).toLocaleTimeString('fr-FR');
     document.getElementById('st-sync').textContent = new Date(lastSync).toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'});
   }
 }
 
 async function doSync() {
-  if (!ghToken || !ghRepo) { toast('GitHub non configuré','warn'); return; }
+  if (!ghToken || !ghRepo) { toast('GitHub non configur\u00e9','warn'); return; }
   setSyncUI('syncing', 'Synchronisation en cours\u2026');
 
   try {
-    const getRes = await fetch(`https://api.github.com/repos/${ghRepo}/contents/${GH_FILE}`, {
-      headers: { Authorization:`token ${ghToken}`, Accept:'application/vnd.github.v3+json' }
-    });
+    // ── 1. Pousser le sel (permet à d'autres appareils de dériver la même clé)
+    const saltB64 = localStorage.getItem(LS.SALT); // déjà en base64 ASCII pur
+    await ghPut('vault.salt.txt', saltB64, 'cf2_sha_salt');
+    const verifyBlob = localStorage.getItem(LS.VERIFY);
+    await ghPut('vault.verify.txt', verifyBlob, 'cf2_sha_verify');
 
-    let remoteSha = null;
+    // ── 2. Lire le coffre distant
+    const remote = await ghGet(GH_FILE);
     let remoteVault = null;
-
-    if (getRes.ok) {
-      const meta = await getRes.json();
-      remoteSha  = meta.sha;
-      const remoteBlob = atob(meta.content.replace(/\n/g,''));
+    if (remote.content) {
+      // Le fichier distant contient notre blob AES (chaîne base64)
+      // On le déchiffre directement
       try {
-        const plain = await dec(sessionKey, remoteBlob);
-        remoteVault = JSON.parse(plain);
+        remoteVault = JSON.parse(await dec(sessionKey, remote.content.trim()));
       } catch { remoteVault = null; }
     }
+    // Stocker le SHA distant pour le prochain PUT
+    if (remote.sha) localStorage.setItem(LS.LAST_SHA, remote.sha);
 
+    // ── 3. Fusionner local + distant
     if (remoteVault && Array.isArray(remoteVault)) {
       const merged = mergeVaults(vault, remoteVault);
       if (JSON.stringify(merged) !== JSON.stringify(vault)) {
@@ -1183,31 +1281,16 @@ async function doSync() {
       }
     }
 
-    const plain  = JSON.stringify(vault);
-    const blob   = await enc(sessionKey, plain);
-    const b64    = btoa(unescape(encodeURIComponent(blob)));
+    // ── 4. Pousser le coffre fusionné
+    //    Le blob AES est une chaîne base64 ASCII pure → on peut la stocker telle quelle
+    const blob = await enc(sessionKey, JSON.stringify(vault));
+    await ghPut(GH_FILE, blob, LS.LAST_SHA);
 
-    const body   = { message:`Sync coffre ${new Date().toISOString()}`, content:b64 };
-    const sha    = remoteSha || localStorage.getItem(LS.LAST_SHA);
-    if (sha) body.sha = sha;
-
-    const putRes = await fetch(`https://api.github.com/repos/${ghRepo}/contents/${GH_FILE}`, {
-      method:'PUT',
-      headers:{ Authorization:`token ${ghToken}`, Accept:'application/vnd.github.v3+json', 'Content-Type':'application/json' },
-      body:JSON.stringify(body)
-    });
-
-    if (!putRes.ok) {
-      const e = await putRes.json();
-      throw new Error(e.message || 'GitHub PUT error');
-    }
-
-    const putData = await putRes.json();
-    localStorage.setItem(LS.LAST_SHA,  putData.content.sha);
     const now = new Date().toISOString();
     localStorage.setItem(LS.LAST_SYNC, now);
-    setSyncUI('ok', 'Synchronisé avec GitHub');
-    toast('Coffre synchronisé avec GitHub','ok');
+    setSyncUI('ok', 'Synchronis\u00e9 avec GitHub');
+    toast('Coffre synchronis\u00e9 avec GitHub','ok');
+
   } catch(e) {
     setSyncUI('err', 'Erreur de synchronisation\u00a0: ' + e.message);
     toast('Erreur sync GitHub\u00a0: ' + e.message,'err');
