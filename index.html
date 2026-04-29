@@ -1549,7 +1549,7 @@ function entryCard(e) {
 }
 
 function h(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;') }
-function q_(s){ return JSON.stringify(String(s||'')) }
+function q_(s){ return JSON.stringify(String(s||'')).replace(/"/g, '&quot;') }
 
 // ══════════════════════════════════════════════
 //  STATS
