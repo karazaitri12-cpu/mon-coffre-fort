@@ -42,6 +42,7 @@ body{
   min-height:100vh;
   line-height:1.5;
   -webkit-font-smoothing:antialiased;
+  overflow-x: hidden;
 }
 
 /* ── SCREENS ── */
@@ -55,9 +56,7 @@ body{
   align-items:center;
   justify-content:center;
   padding:20px;
-  background:
-    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(26,111,212,0.06) 0%, transparent 60%),
-    var(--bg);
+  background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(26,111,212,0.06) 0%, transparent 60%), var(--bg);
 }
 
 /* ── CARD ── */
@@ -107,7 +106,7 @@ body{
   border-radius:var(--radius);
   color:var(--text);
   padding:9px 38px 9px 12px;
-  font-size:13.5px;
+  font-size:16px;
   font-family:var(--mono);
   outline:none;
   transition:border-color .2s,box-shadow .2s;
@@ -124,7 +123,10 @@ body{
 .eye-btn{
   position:absolute;right:10px;top:50%;transform:translateY(-50%);
   background:none;border:none;cursor:pointer;
-  color:var(--text-dim);padding:4px;display:flex;
+  color:var(--text-dim);
+  padding:10px;
+  min-width: 44px; min-height: 44px;
+  display:flex;
   transition:color .15s;
 }
 .eye-btn:hover{color:var(--text-muted)}
@@ -149,11 +151,10 @@ body{
 .btn-gold:hover{filter:brightness(1.1)}
 .btn-full{width:100%}
 .btn-icon{
-  padding:10px;border-radius:6px;background:transparent;border:none;
+  border-radius:6px;background:transparent;border:none;
   cursor:pointer;color:var(--text-dim);display:inline-flex;align-items:center;justify-content:center;
   transition:color .15s,background .15s;
-  /* zone tactile minimum 44×44px pour mobile */
-  min-width:44px;min-height:44px;
+  padding: 10px; min-width: 44px; min-height: 44px;
   -webkit-tap-highlight-color:transparent;
   touch-action:manipulation;
 }
@@ -203,7 +204,7 @@ body{
 .logo-badge.offline{background:var(--red-dim);color:var(--red);border-color:rgba(207,34,46,.25)}
 .logo-badge.syncing{background:var(--gold-dim);color:var(--gold);border-color:rgba(154,111,0,.25)}
 
-.header-right{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.header-right{display:flex;align-items:center;gap:6px}
 .sync-info{font-size:11px;color:var(--text-dim);margin-right:4px}
 
 /* ══════════════════════════════════════
@@ -245,7 +246,6 @@ body{
   margin-left:auto;background:var(--surface2);
   color:var(--text-dim);font-size:10px;
   padding:1px 6px;border-radius:10px;font-weight:600;
-  flex-shrink:0;
 }
 .sb-item.active .sb-badge{background:rgba(26,111,212,.12);color:var(--accent)}
 .sb-divider{height:1px;background:var(--border);margin:8px 16px}
@@ -261,7 +261,7 @@ body{
 
 .stats-row{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+  grid-template-columns:repeat(4,1fr);
   gap:10px;margin-bottom:18px;
 }
 .stat-card{
@@ -291,21 +291,20 @@ body{
 /* ══════════════════════════════════════
    ENTRY CARDS
 ══════════════════════════════════════ */
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px}
 
 .entry-card{
   background:var(--surface);border:1px solid var(--border);
   border-radius:8px;padding:14px;
   transition:border-color .2s,box-shadow .2s;
   box-shadow:var(--shadow-sm);
-  /* bloque tout débordement horizontal */
   min-width:0;overflow:hidden;box-sizing:border-box;
 }
 .entry-card:hover{
   border-color:var(--border2);
   box-shadow:0 4px 16px rgba(0,0,0,.10);
 }
-.ec-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;min-width:0;flex-wrap:wrap}
+.ec-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;min-width:0}
 .ec-avatar{
   width:38px;height:38px;border-radius:8px;
   background:var(--surface2);border:1px solid var(--border);
@@ -323,7 +322,7 @@ body{
 
 .ec-fields{display:flex;flex-direction:column;gap:6px;margin-bottom:4px}
 .ec-field{
-  display:flex;align-items:center;flex-wrap:wrap;
+  display:flex;align-items:center;
   background:var(--surface2);border:1px solid var(--border);
   border-radius:4px;padding:4px 4px 4px 8px;gap:4px;
   min-width:0;overflow:hidden;
@@ -332,8 +331,8 @@ body{
 .ec-fval{flex:1;font-family:var(--mono);font-size:13px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
 .ec-fval.masked{letter-spacing:.14em;color:var(--text-dim)}
 
-.ec-notes{font-size:12px;color:var(--text-dim);margin-top:8px;padding-top:8px;border-top:1px solid var(--border);line-height:1.5;word-break:break-word}
-.ec-actions{display:flex;gap:2px;justify-content:flex-end;margin-top:6px;flex-wrap:wrap}
+.ec-notes{font-size:12px;color:var(--text-dim);margin-top:8px;padding-top:8px;border-top:1px solid var(--border);line-height:1.5}
+.ec-actions{display:flex;gap:2px;justify-content:flex-end;margin-top:6px}
 
 /* category colors */
 .cat-web{background:rgba(26,111,212,.08);color:var(--accent)}
@@ -372,16 +371,13 @@ body{
   display:flex;align-items:center;justify-content:space-between;
   padding:18px 22px 14px;border-bottom:1px solid var(--border);
   background:var(--surface);
-  flex-wrap:wrap;
-  gap:10px;
 }
-.modal-title{font-size:15px;font-weight:700;color:var(--text);flex:1;min-width:0}
+.modal-title{font-size:15px;font-weight:700;color:var(--text)}
 .modal-body{padding:18px 22px;display:flex;flex-direction:column;gap:14px;background:var(--surface)}
 .modal-ft{
   padding:14px 22px;border-top:1px solid var(--border);
   display:flex;gap:8px;justify-content:flex-end;
   background:var(--surface2);
-  flex-wrap:wrap;
 }
 
 /* ══════════════════════════════════════
@@ -395,11 +391,11 @@ body{
   letter-spacing:.03em;
 }
 .gen-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.gen-opt{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--text-muted);cursor:pointer;flex-wrap:wrap}
-.gen-opt input[type=checkbox]{accent-color:var(--accent);width:14px;height:14px;flex-shrink:0}
-.gen-len-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.gen-len-row input[type=range]{flex:1;min-width:100px;accent-color:var(--accent)}
-.gen-len-val{font-family:var(--mono);font-size:13px;color:var(--accent);width:26px;text-align:right;flex-shrink:0}
+.gen-opt{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--text-muted);cursor:pointer}
+.gen-opt input[type=checkbox]{accent-color:var(--accent);width:14px;height:14px}
+.gen-len-row{display:flex;align-items:center;gap:10px}
+.gen-len-row input[type=range]{flex:1;accent-color:var(--accent)}
+.gen-len-val{font-family:var(--mono);font-size:13px;color:var(--accent);width:26px;text-align:right}
 
 /* ══════════════════════════════════════
    STEPS
@@ -426,7 +422,6 @@ body{
 #toasts{
   position:fixed;bottom:18px;right:18px;
   z-index:999;display:flex;flex-direction:column;gap:7px;
-  padding:0 18px;
 }
 .toast{
   background:var(--surface);border:1px solid var(--border);
@@ -435,7 +430,6 @@ body{
   box-shadow:var(--shadow);
   animation:toast-in .25s ease;
   display:flex;align-items:center;gap:8px;
-  min-width:200px;
   max-width:320px;
 }
 .toast.ok{border-color:rgba(26,127,55,.4)}
@@ -451,7 +445,6 @@ body{
   padding:6px 14px;background:var(--surface2);
   border-bottom:1px solid var(--border);
   font-size:11.5px;color:var(--text-muted);
-  flex-wrap:wrap;
 }
 .sync-dot{
   width:7px;height:7px;border-radius:50%;
@@ -475,47 +468,25 @@ body{
     flex-direction:row;flex-wrap:wrap;
     padding:8px;gap:4px;
   }
-  .sb-section{padding:0;display:flex;flex-direction:row;align-items:center;gap:4px;flex-wrap:wrap}
+  .sb-section{padding:0}
   .sb-label,.sb-divider,.sb-bottom{display:none}
-  .sb-item{font-size:12px;padding:6px 9px;flex-shrink:0}
-  .sb-badge{display:none}
-  .stats-row{grid-template-columns:repeat(auto-fit,minmax(100px,1fr))}
+  .sb-item{font-size:13px;padding:7px 10px}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
   .grid{grid-template-columns:1fr}
   .main{padding:12px}
-  /* évite tout scroll horizontal parasite */
-  body,#screen-app{overflow-x:hidden;max-width:100vw;width:100%}
-  .app-header{padding:0 12px;gap:8px;flex-wrap:wrap;height:auto;min-height:52px}
-  .logo{font-size:14px;gap:6px}
-  .header-right{gap:4px}
+  body,#screen-app{overflow-x:hidden;max-width:100vw}
+  .app-header{padding:0 12px}
   .toolbar{gap:8px}
-  .stat-val{font-size:20px}
-  .stat-lbl{font-size:9px}
-  /* les boutons d'actions dans les cards */
+  .stat-val{font-size:22px}
+  .stat-lbl{font-size:11px}
   .ec-actions .btn-icon{min-width:40px;min-height:40px;padding:8px}
-  .ec-field{flex-wrap:wrap}
-  .search-wrap{min-width:100%;order:-1}
-  .btn{padding:8px 12px;font-size:12px}
 }
 @media(max-width:480px){
-  .auth-card{padding:24px 18px;max-width:100%}
+  .auth-card{padding:24px 18px}
   .header-right .sync-info{display:none}
-  .header-right{gap:2px}
-  /* boutons header : texte masqué, icône seule */
   .app-header .btn span{display:none}
-  .app-header .btn{padding:8px}
-  .ec-fval{font-size:11px}
-  .ec-flbl{font-size:9px;width:40px}
-  .ec-cat{font-size:10px;padding:2px 5px}
-  .modal{max-width:100%;border-radius:var(--radius-lg) var(--radius-lg) 0 0}
-  .modal-hd,.modal-body,.modal-ft{padding:14px 16px}
-  .modal-ft{flex-direction:column-reverse}
-  .modal-ft .btn{width:100%}
-  .grid{grid-template-columns:1fr;gap:10px}
-  .entry-card{padding:12px}
-  .stats-row{grid-template-columns:repeat(2,1fr)}
-  .gen-opts{grid-template-columns:1fr}
-  #toasts{bottom:10px;right:10px;left:10px}
-  .toast{width:100%;max-width:none}
+  .ec-fval{font-size:12px}
+  .ec-flbl{font-size:10px;width:44px}
 }
 
 select.form-input{cursor:pointer;background-image:none}
@@ -603,8 +574,7 @@ select.form-input{cursor:pointer;background-image:none}
     <div class="form-group">
       <div class="form-label">Mot de passe maître</div>
       <div class="form-wrap">
-        <input type="password" id="unlock-p" class="form-input" placeholder="••••••••••" autocomplete="current-password"
-          onkeydown="if(event.key==='Enter')doUnlock()">
+        <input type="password" id="unlock-p" class="form-input" placeholder="••••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doUnlock()">
         <button class="eye-btn" onclick="toggleVis('unlock-p',this)" type="button">
           <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
         </button>
@@ -681,7 +651,7 @@ select.form-input{cursor:pointer;background-image:none}
     </div>
     <div class="err-msg" id="gh-err">Vérifiez le repo et le token.</div>
 
-    <div style="display:flex;gap:8px;margin-top:4px;flex-wrap:wrap">
+    <div style="display:flex;gap:8px;margin-top:4px">
       <button class="btn btn-ghost" onclick="skipGithub()" style="flex:0 0 auto">Ignorer</button>
       <button class="btn btn-success btn-full" onclick="saveGithubConfig()" id="gh-btn">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
@@ -847,7 +817,7 @@ select.form-input{cursor:pointer;background-image:none}
           <div class="s-seg"></div><div class="s-seg"></div>
           <div class="s-seg"></div><div class="s-seg"></div><div class="s-seg"></div>
         </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;flex-wrap:wrap;gap:6px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">
           <div class="strength-lbl" id="e-lbl">—</div>
           <button class="btn btn-ghost" style="padding:3px 9px;font-size:11px" onclick="fillGen()" type="button">Générer</button>
         </div>
@@ -865,7 +835,7 @@ select.form-input{cursor:pointer;background-image:none}
       </div>
       <div class="form-group">
         <div class="form-label">Notes</div>
-        <textarea id="e-notes" class="form-input form-input-plain" rows="2" placeholder="Informations complémentaires…" style="resize:vertical;overflow-y:auto"></textarea>
+        <textarea id="e-notes" class="form-input form-input-plain" rows="2" placeholder="Informations complémentaires…" style="resize:vertical"></textarea>
       </div>
       <div class="err-msg" id="entry-err">Remplissez les champs obligatoires (*).</div>
     </div>
@@ -890,16 +860,15 @@ select.form-input{cursor:pointer;background-image:none}
     <div class="modal-body">
       <div class="gen-out" id="gen-out">Cliquez sur Générer…</div>
       <div class="gen-len-row">
-        <span style="font-size:12px;color:var(--text-muted);white-space:nowrap">Longueur</span>
-        <input type="range" id="gen-len" min="8" max="64" value="20"
-          oninput="document.getElementById('gen-len-v').textContent=this.value;genPw()">
+        <span style="font-size:12px;color:var(--text-muted)">Longueur</span>
+        <input type="range" id="gen-len" min="8" max="64" value="20" oninput="document.getElementById('gen-len-v').textContent=this.value;genPw()">
         <span class="gen-len-val" id="gen-len-v">20</span>
       </div>
       <div class="gen-opts">
-        <label class="gen-opt"><input type="checkbox" id="g-up" checked onchange="genPw()"> Majuscules</label>
-        <label class="gen-opt"><input type="checkbox" id="g-lo" checked onchange="genPw()"> Minuscules</label>
-        <label class="gen-opt"><input type="checkbox" id="g-nu" checked onchange="genPw()"> Chiffres</label>
-        <label class="gen-opt"><input type="checkbox" id="g-sy" checked onchange="genPw()"> Symboles</label>
+        <label class="gen-opt"><input type="checkbox" id="g-up" checked onchange="genPw()"> Majuscules (A-Z)</label>
+        <label class="gen-opt"><input type="checkbox" id="g-lo" checked onchange="genPw()"> Minuscules (a-z)</label>
+        <label class="gen-opt"><input type="checkbox" id="g-nu" checked onchange="genPw()"> Chiffres (0-9)</label>
+        <label class="gen-opt"><input type="checkbox" id="g-sy" checked onchange="genPw()"> Symboles (!@#…)</label>
       </div>
       <div class="strength-bar" id="gen-bar">
         <div class="s-seg"></div><div class="s-seg"></div>
@@ -1078,20 +1047,14 @@ async function doUnlock() {
   const errEl = document.getElementById('unlock-err');
   const btn   = document.getElementById('unlock-btn');
   errEl.classList.remove('show');
-  btn.disabled = true; btn.textContent = 'V\u00e9rification\u2026';
+  btn.disabled = true; btn.textContent = 'Vérification...';
 
   try {
-    // ── Récupérer le sel : localStorage d'abord, sinon GitHub (nouveau portable)
     let saltB64 = localStorage.getItem(LS.SALT);
     if (!saltB64) {
-      // Le sel n'est pas secret (il sert juste à diversifier la dérivation).
-      // On le stocke publiquement sur GitHub pour permettre la restauration
-      // sur un nouvel appareil. vault.salt.txt est lisible sans auth sur repo privé
-      // si on passe le token stocké en clair (avant premier déchiffrement).
       const repo = localStorage.getItem(LS.GH_REPO);
       if (!repo) throw new Error('no_salt');
-      btn.textContent = 'R\u00e9cup\u00e9ration du sel\u2026';
-      // vault.salt.txt est public car le sel seul ne compromet rien
+      btn.textContent = 'Récupération du sel...';
       const res = await fetch(
         `https://api.github.com/repos/${repo}/contents/vault.salt.txt`,
         { headers: { Accept: 'application/vnd.github.v3+json' } }
@@ -1100,14 +1063,12 @@ async function doUnlock() {
       const meta = await res.json();
       saltB64 = b64ToStr(meta.content).trim();
       localStorage.setItem(LS.SALT, saltB64);
-      btn.textContent = 'V\u00e9rification\u2026';
+      btn.textContent = 'Vérification...';
     }
 
     const salt = Uint8Array.from(atob(saltB64), c => c.charCodeAt(0));
     const key  = await deriveKey(pass, salt);
 
-    // ── Vérifier le mot de passe
-    // Sur un nouvel appareil, LS.VERIFY est absent : on le reconstruit depuis GitHub
     let verifyBlob = localStorage.getItem(LS.VERIFY);
     if (!verifyBlob) {
       const repo = localStorage.getItem(LS.GH_REPO);
@@ -1136,8 +1097,6 @@ async function doUnlock() {
     if (encTok && repo) {
       try { ghToken = await dec(sessionKey, encTok); ghRepo = repo; } catch {}
     }
-    // Sur un nouvel appareil le token n'est pas encore stocké localement ;
-    // la sync sera déclenchée manuellement après configuration GitHub.
 
     await loadLocal();
     enterApp();
@@ -1149,7 +1108,7 @@ async function doUnlock() {
     const isConfig = err.message === 'no_salt' || err.message === 'no_verify';
     failedAttempts += isConfig ? 0 : 1;
     if (isConfig) {
-      errEl.textContent = 'Nouvel appareil d\u00e9tect\u00e9. Configurez GitHub pour restaurer le coffre.';
+      errEl.textContent = 'Nouvel appareil détecté. Configurez GitHub pour restaurer le coffre.';
     } else {
       errEl.textContent = 'Mot de passe incorrect.';
     }
@@ -1157,12 +1116,12 @@ async function doUnlock() {
     const attEl = document.getElementById('unlock-att');
     if (!isConfig && failedAttempts >= 3) {
       attEl.classList.add('show');
-      attEl.textContent = `Tentatives\u00a0: ${failedAttempts}/5`;
+      attEl.textContent = `Tentatives : ${failedAttempts}/5`;
     }
     if (failedAttempts >= 5) {
-      btn.textContent = 'Bloqu\u00e9'; btn.disabled = true;
+      btn.textContent = 'Bloqué'; btn.disabled = true;
     } else {
-      btn.textContent = 'D\u00e9verrouiller'; btn.disabled = false;
+      btn.textContent = 'Déverrouiller'; btn.disabled = false;
     }
     document.getElementById('unlock-p').value = '';
   }
@@ -1208,40 +1167,24 @@ async function loadLocal() {
 }
 
 // ══════════════════════════════════════════════
-//  HELPERS BASE64 (safe pour Unicode)
+//  HELPERS BASE64
 // ══════════════════════════════════════════════
-// Encode une chaîne quelconque en base64 via UTF-8
 function strToB64(str) {
   return btoa(String.fromCharCode(...new TextEncoder().encode(str)));
 }
-// Décode un base64 GitHub (peut contenir \n) en chaîne UTF-8
 function b64ToStr(b64) {
   const clean = b64.replace(/\s/g, '');
   const bytes = Uint8Array.from(atob(clean), c => c.charCodeAt(0));
   return new TextDecoder().decode(bytes);
 }
 
-// Push un fichier texte sur GitHub (crée ou met à jour)
 async function ghPut(filename, content, shaKey) {
-  // Lire d'abord le fichier pour récupérer son SHA actuel
-  let sha = null;
-  try {
-    const res = await fetch(`https://api.github.com/repos/${ghRepo}/contents/${filename}`, {
-      headers: { Authorization: `token ${ghToken}`, Accept: 'application/vnd.github.v3+json' }
-    });
-    if (res.ok) {
-      const meta = await res.json();
-      sha = meta.sha;
-      localStorage.setItem(shaKey, sha);
-    }
-  } catch {}
-
+  const sha = localStorage.getItem(shaKey);
   const body = {
     message: `Sync coffre ${new Date().toISOString()}`,
     content: strToB64(content)
   };
   if (sha) body.sha = sha;
-
   const res = await fetch(`https://api.github.com/repos/${ghRepo}/contents/${filename}`, {
     method: 'PUT',
     headers: {
@@ -1251,16 +1194,11 @@ async function ghPut(filename, content, shaKey) {
     },
     body: JSON.stringify(body)
   });
-  if (!res.ok) { 
-    const e = await res.json(); 
-    throw new Error(e.message || 'GitHub PUT error'); 
-  }
+  if (!res.ok) { const e = await res.json(); throw new Error(e.message || 'GitHub PUT error'); }
   const data = await res.json();
   localStorage.setItem(shaKey, data.content.sha);
 }
 
-
-// Lit un fichier texte sur GitHub, renvoie null si absent
 async function ghGet(filename) {
   const res = await fetch(`https://api.github.com/repos/${ghRepo}/contents/${filename}`, {
     headers: { Authorization: `token ${ghToken}`, Accept: 'application/vnd.github.v3+json' }
@@ -1297,7 +1235,7 @@ function setSyncUI(state, msg) {
     badge.style.cssText = 'background:rgba(207,34,46,.08);color:#cf222e;border:1px solid rgba(207,34,46,.28)';
   } else if (state === 'syncing') {
     dot.classList.add('spin');
-    badge.textContent = 'Sync\u2026';
+    badge.textContent = 'Sync...';
     badge.style.cssText = 'background:rgba(154,111,0,.10);color:#9a6f00;border:1px solid rgba(154,111,0,.28)';
   } else {
     badge.textContent = 'Local';
@@ -1305,36 +1243,30 @@ function setSyncUI(state, msg) {
 
   const lastSync = localStorage.getItem(LS.LAST_SYNC);
   if (lastSync) {
-    document.getElementById('sync-bar-time').textContent = 'Derni\u00e8re sync\u00a0: ' + new Date(lastSync).toLocaleTimeString('fr-FR');
+    document.getElementById('sync-bar-time').textContent = 'Dernière sync : ' + new Date(lastSync).toLocaleTimeString('fr-FR');
     document.getElementById('st-sync').textContent = new Date(lastSync).toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'});
   }
 }
 
 async function doSync() {
-  if (!ghToken || !ghRepo) { toast('GitHub non configur\u00e9','warn'); return; }
-  setSyncUI('syncing', 'Synchronisation en cours\u2026');
+  if (!ghToken || !ghRepo) { toast('GitHub non configuré','warn'); return; }
+  setSyncUI('syncing', 'Synchronisation en cours...');
 
   try {
-    // ── 1. Pousser le sel (permet à d'autres appareils de dériver la même clé)
-    const saltB64 = localStorage.getItem(LS.SALT); // déjà en base64 ASCII pur
+    const saltB64 = localStorage.getItem(LS.SALT);
     await ghPut('vault.salt.txt', saltB64, 'cf2_sha_salt');
     const verifyBlob = localStorage.getItem(LS.VERIFY);
     await ghPut('vault.verify.txt', verifyBlob, 'cf2_sha_verify');
 
-    // ── 2. Lire le coffre distant
     const remote = await ghGet(GH_FILE);
     let remoteVault = null;
     if (remote.content) {
-      // Le fichier distant contient notre blob AES (chaîne base64)
-      // On le déchiffre directement
       try {
         remoteVault = JSON.parse(await dec(sessionKey, remote.content.trim()));
       } catch { remoteVault = null; }
     }
-    // Stocker le SHA distant pour le prochain PUT
     if (remote.sha) localStorage.setItem(LS.LAST_SHA, remote.sha);
 
-    // ── 3. Fusionner local + distant
     if (remoteVault && Array.isArray(remoteVault)) {
       const merged = mergeVaults(vault, remoteVault);
       if (JSON.stringify(merged) !== JSON.stringify(vault)) {
@@ -1344,19 +1276,17 @@ async function doSync() {
       }
     }
 
-    // ── 4. Pousser le coffre fusionné
-    //    Le blob AES est une chaîne base64 ASCII pure → on peut la stocker telle quelle
     const blob = await enc(sessionKey, JSON.stringify(vault));
     await ghPut(GH_FILE, blob, LS.LAST_SHA);
 
     const now = new Date().toISOString();
     localStorage.setItem(LS.LAST_SYNC, now);
-    setSyncUI('ok', 'Synchronis\u00e9 avec GitHub');
-    toast('Coffre synchronis\u00e9 avec GitHub','ok');
+    setSyncUI('ok', 'Synchronisé avec GitHub');
+    toast('Coffre synchronisé avec GitHub','ok');
 
   } catch(e) {
-    setSyncUI('err', 'Erreur de synchronisation\u00a0: ' + e.message);
-    toast('Erreur sync GitHub\u00a0: ' + e.message,'err');
+    setSyncUI('err', 'Erreur de synchronisation : ' + e.message);
+    toast('Erreur sync GitHub : ' + e.message,'err');
   }
 }
 
@@ -1367,7 +1297,8 @@ function mergeVaults(local, remote) {
       map[e.id] = e;
     }
   });
-  return Object.values(map).filter(e => !e._deleted);
+  // Ne pas filtrer les suppressions ici sinon la synchro ne propage pas la suppression à GitHub !
+  return Object.values(map);
 }
 
 function updateSync() {
@@ -1390,7 +1321,7 @@ async function saveGithubConfig() {
   err.classList.remove('show');
   if (!repo || !token) { err.classList.add('show'); return; }
 
-  btn.textContent = 'Test en cours\u2026'; btn.disabled = true;
+  btn.textContent = 'Test en cours...'; btn.disabled = true;
 
   try {
     const res = await fetch(`https://api.github.com/repos/${repo}`, {
@@ -1486,7 +1417,7 @@ function openEdit(id) {
   document.getElementById('e-pass').value  = e.password||'';
   document.getElementById('e-cat').value   = e.category||'other';
   document.getElementById('e-notes').value = e.notes||'';
-  document.getElementById('entry-modal-title').textContent = 'Modifier l\'identifiant';
+  document.getElementById('entry-modal-title').textContent = "Modifier l'identifiant";
   document.getElementById('entry-err').classList.remove('show');
   evalBar(e.password||'','e-bar','e-lbl');
   openOv('ov-entry');
@@ -1507,7 +1438,8 @@ async function saveEntry() {
     login, password:pass,
     category: document.getElementById('e-cat').value,
     notes:    document.getElementById('e-notes').value.trim(),
-    updatedAt:new Date().toISOString()
+    updatedAt:new Date().toISOString(),
+    _deleted: false
   };
 
   const idx = vault.findIndex(x => x.id === id);
@@ -1523,7 +1455,12 @@ async function saveEntry() {
 
 async function delEntry(id) {
   if (!confirm('Supprimer définitivement ?')) return;
-  vault = vault.filter(e => e.id !== id);
+  // Utilisation d'un Soft Delete pour permettre à GitHub d'être au courant de la suppression
+  const idx = vault.findIndex(e => e.id === id);
+  if(idx >= 0){
+    vault[idx]._deleted = true;
+    vault[idx].updatedAt = new Date().toISOString();
+  }
   await saveLocal();
   renderEntries(); updateStats(); updateCounts();
   toast('Identifiant supprimé','warn');
@@ -1535,28 +1472,31 @@ async function delEntry(id) {
 // ══════════════════════════════════════════════
 const CAT = {
   web:     {l:'Web',     c:'cat-web'},
-  social:  {l:'Social',  c:'cat-social'},
+  social:  {l:'Social', c:'cat-social'},
   finance: {l:'Finance', c:'cat-finance'},
-  email:   {l:'Email',   c:'cat-email'},
-  medical: {l:'M\u00e9dical', c:'cat-medical'},
-  other:   {l:'Autre',   c:'cat-other'},
+  email:   {l:'Email',  c:'cat-email'},
+  medical: {l:'Médical', c:'cat-medical'},
+  other:   {l:'Autre',  c:'cat-other'},
 };
 
 function renderEntries() {
-  const q   = (document.getElementById('q').value || '').toLowerCase();
+  const q  = (document.getElementById('q').value || '').toLowerCase();
   const cat = currentCat;
   let list  = vault.filter(e => {
+    if(e._deleted) return false;
     const mc = cat === 'all' || e.category === cat;
     const mq = !q || [e.title,e.login,e.url,e.notes].some(f => f && f.toLowerCase().includes(q));
     return mc && mq;
   });
 
   const cont = document.getElementById('entries');
+  const countNonDeleted = vault.filter(e=>!e._deleted).length;
+
   if (!list.length) {
     cont.innerHTML = `<div class="empty">
       <svg width="44" height="44" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-      <h3>${vault.length ? 'Aucun r\u00e9sultat' : 'Coffre vide'}</h3>
-      <p>${vault.length ? 'Modifiez la recherche' : 'Ajoutez votre premier identifiant'}</p>
+      <h3>${countNonDeleted ? 'Aucun résultat' : 'Coffre vide'}</h3>
+      <p>${countNonDeleted ? 'Modifiez la recherche' : 'Ajoutez votre premier identifiant'}</p>
     </div>`;
     return;
   }
@@ -1566,14 +1506,14 @@ function renderEntries() {
 function entryCard(e) {
   const cat = CAT[e.category] || CAT.other;
   const ini = (e.title||'?').slice(0,2).toUpperCase();
-  const masked = '\u2022'.repeat(Math.min((e.password||'').length||12,16));
+  const masked = '•'.repeat(Math.min((e.password||'').length||12,16));
   const notes  = e.notes ? `<div class="ec-notes">${h(e.notes)}</div>` : '';
   return `<div class="entry-card">
     <div class="ec-head">
       <div class="ec-avatar">${ini}</div>
       <div class="ec-info">
         <div class="ec-title">${h(e.title)}</div>
-        <div class="ec-url">${h(e.url||'\u2014')}</div>
+        <div class="ec-url">${h(e.url||'—')}</div>
       </div>
       <span class="ec-cat ${cat.c}">${cat.l}</span>
     </div>
@@ -1581,7 +1521,7 @@ function entryCard(e) {
       <div class="ec-field">
         <div class="ec-flbl">Login</div>
         <div class="ec-fval">${h(e.login)}</div>
-        <button class="btn-icon green" onclick="cp(${q_(e.login)},'Login copi\u00e9')" title="Copier">
+        <button class="btn-icon green" onclick="cp(${q_(e.login)},'Login copié')" title="Copier">
           <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
         </button>
       </div>
@@ -1591,7 +1531,7 @@ function entryCard(e) {
         <button class="btn-icon" onclick="togglePw('${e.id}',${q_(e.password||'')})" title="Afficher">
           <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
         </button>
-        <button class="btn-icon green" onclick="cp(${q_(e.password||'')},'MDP copi\u00e9')" title="Copier">
+        <button class="btn-icon green" onclick="cp(${q_(e.password||'')},'MDP copié')" title="Copier">
           <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
         </button>
       </div>
@@ -1615,15 +1555,17 @@ function q_(s){ return JSON.stringify(String(s||'')) }
 //  STATS
 // ══════════════════════════════════════════════
 function updateStats() {
-  document.getElementById('st-total').textContent  = vault.length;
-  document.getElementById('st-cats').textContent   = new Set(vault.map(e=>e.category)).size;
-  document.getElementById('st-strong').textContent = vault.filter(e=>e.password&&e.password.length>=12).length;
+  const activeVault = vault.filter(e=>!e._deleted);
+  document.getElementById('st-total').textContent  = activeVault.length;
+  document.getElementById('st-cats').textContent   = new Set(activeVault.map(e=>e.category)).size;
+  document.getElementById('st-strong').textContent = activeVault.filter(e=>e.password&&e.password.length>=12).length;
 }
 function updateCounts() {
-  document.getElementById('c-all').textContent = vault.length;
+  const activeVault = vault.filter(e=>!e._deleted);
+  document.getElementById('c-all').textContent = activeVault.length;
   ['web','email','finance','social','medical','other'].forEach(c => {
     const el = document.getElementById('c-'+c);
-    if (el) el.textContent = vault.filter(e=>e.category===c).length;
+    if (el) el.textContent = activeVault.filter(e=>e.category===c).length;
   });
 }
 
@@ -1650,12 +1592,12 @@ function cp(val, msg) {
 function togglePw(id, pw) {
   const el = document.getElementById('pw-'+id); if (!el) return;
   if (shownPws[id]) {
-    el.textContent = '\u2022'.repeat(Math.min(pw.length,16));
+    el.textContent = '•'.repeat(Math.min(pw.length,16));
     el.classList.add('masked'); delete shownPws[id];
   } else {
     el.textContent = pw; el.classList.remove('masked');
     shownPws[id] = true;
-    setTimeout(() => { el.textContent='\u2022'.repeat(Math.min(pw.length,16)); el.classList.add('masked'); delete shownPws[id]; }, 5000);
+    setTimeout(() => { el.textContent='•'.repeat(Math.min(pw.length,16)); el.classList.add('masked'); delete shownPws[id]; }, 5000);
   }
 }
 
@@ -1669,9 +1611,9 @@ function evalStrength(pw) {
   if (/[A-Z]/.test(pw)) s++;
   if (/[0-9]/.test(pw)) s++;
   if (/[^A-Za-z0-9]/.test(pw)) s++;
-  const labels = ['','Tr\u00e8s faible','Faible','Moyen','Fort','Tr\u00e8s fort'];
+  const labels = ['','Très faible','Faible','Moyen','Fort','Très fort'];
   const colors = ['','#cf222e','#b45309','#9a6f00','#1a7f37','#0f5a28'];
-  return { s, label:labels[s]||'\u2014', color:colors[s]||'' };
+  return { s, label:labels[s]||'—', color:colors[s]||'' };
 }
 
 function evalBar(pw, barId, lblId) {
@@ -1697,7 +1639,7 @@ function genPw() {
   if (document.getElementById('g-lo').checked) chars += 'abcdefghijklmnopqrstuvwxyz';
   if (document.getElementById('g-nu').checked) chars += '0123456789';
   if (document.getElementById('g-sy').checked) chars += '!@#$%^&*()_+-=[]{}|;:,.<>?';
-  if (!chars) { document.getElementById('gen-out').textContent = 'S\u00e9lectionnez au moins un type'; return; }
+  if (!chars) { document.getElementById('gen-out').textContent = 'Sélectionnez au moins un type'; return; }
   const arr  = new Uint32Array(len);
   crypto.getRandomValues(arr);
   lastGenPw  = Array.from(arr).map(n=>chars[n%chars.length]).join('');
@@ -1705,7 +1647,7 @@ function genPw() {
   evalBar(lastGenPw,'gen-bar','gen-lbl');
 }
 
-function copyGen()  { if(lastGenPw) cp(lastGenPw,'Mot de passe copi\u00e9'); }
+function copyGen()  { if(lastGenPw) cp(lastGenPw,'Mot de passe copié'); }
 function useGen()   { if(!lastGenPw) return; document.getElementById('e-pass').value=lastGenPw; evalBar(lastGenPw,'e-bar','e-lbl'); closeOv('ov-gen'); openOv('ov-entry'); }
 function fillGen()  { openOv('ov-gen'); genPw(); }
 
