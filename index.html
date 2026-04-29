@@ -149,11 +149,10 @@ body{
 .btn-gold:hover{filter:brightness(1.1)}
 .btn-full{width:100%}
 .btn-icon{
-  padding:10px;border-radius:6px;background:transparent;border:none;
+  padding:6px;border-radius:6px;background:transparent;border:none;
   cursor:pointer;color:var(--text-dim);display:inline-flex;align-items:center;justify-content:center;
   transition:color .15s,background .15s;
-  /* zone tactile minimum 44×44px pour mobile */
-  min-width:44px;min-height:44px;
+  flex-shrink:0;width:28px;height:28px;
   -webkit-tap-highlight-color:transparent;
   touch-action:manipulation;
 }
@@ -323,7 +322,7 @@ body{
 
 .ec-fields{display:flex;flex-direction:column;gap:6px;margin-bottom:4px}
 .ec-field{
-  display:flex;align-items:center;flex-wrap:wrap;
+  display:flex;align-items:center;flex-wrap:nowrap;
   background:var(--surface2);border:1px solid var(--border);
   border-radius:4px;padding:4px 4px 4px 8px;gap:4px;
   min-width:0;overflow:hidden;
@@ -491,7 +490,7 @@ body{
   .stat-val{font-size:20px}
   .stat-lbl{font-size:9px}
   /* les boutons d'actions dans les cards */
-  .ec-actions .btn-icon{min-width:40px;min-height:40px;padding:8px}
+  .ec-actions .btn-icon{min-width:28px;min-height:28px;width:28px;height:28px;padding:5px}
   .ec-field{flex-wrap:wrap}
   .search-wrap{min-width:100%;order:-1}
   .btn{padding:8px 12px;font-size:12px}
