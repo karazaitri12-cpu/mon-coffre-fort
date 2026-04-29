@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Coffre-Fort — Synchronisation Professionnelle</title>
+    <title>Coffre-Fort Pro — Sync GitHub</title>
     <style>
         :root {
             --v-bg: #f5f7fa;
@@ -14,347 +14,219 @@
             --v-muted: #606266;
             --v-red: #f56c6c;
             --v-green: #67c23a;
-            --v-gold: #e6a23c;
             --v-radius: 8px;
             --v-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             --v-mono: "SFMono-Regular", Consolas, monospace;
         }
 
-        /* RESET ELEMENTOR PROOF */
-        .v-app-wrapper * { box-sizing: border-box; margin: 0; padding: 0; }
-        .v-app-wrapper {
-            font-family: var(--v-font);
-            background: var(--v-bg);
-            color: var(--v-text);
-            font-size: 16px; /* Taille optimale mobile */
-            -webkit-font-smoothing: antialiased;
-            overflow-x: hidden;
-            min-height: 100vh;
-        }
+        .v-app * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: var(--v-bg); font-family: var(--v-font); font-size: 16px; color: var(--v-text); overflow-x: hidden; }
 
-        /* SCREENS */
-        .v-screen { display: none; padding: 15px; }
-        .v-screen.active { display: flex; flex-direction: column; align-items: center; }
+        .v-screen { display: none; padding: 15px; min-height: 100vh; flex-direction: column; align-items: center; }
+        .v-screen.active { display: flex; }
 
-        /* AUTH CARD */
-        .v-card {
-            background: var(--v-surf);
-            border: 1px solid var(--v-border);
-            border-radius: 12px;
-            padding: 25px;
-            width: 100%;
-            max-width: 420px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            margin-top: 20px;
-        }
+        .v-card { background: #fff; border: 1px solid var(--v-border); border-radius: 12px; padding: 25px; width: 100%; max-width: 450px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
 
-        /* FORMULAIRES MOBILE-READY */
-        .v-field { margin-bottom: 18px; width: 100%; }
+        .v-field { margin-bottom: 15px; width: 100%; }
         .v-label { font-size: 12px; font-weight: 700; color: var(--v-muted); text-transform: uppercase; margin-bottom: 6px; display: block; }
-        .v-input-group { position: relative; display: flex; align-items: center; }
-        .v-input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid var(--v-border);
-            border-radius: var(--v-radius);
-            font-size: 16px;
-            font-family: var(--v-mono);
-            outline: none;
-            background: #fff;
-        }
+        .v-input { width: 100%; padding: 12px; border: 1px solid var(--v-border); border-radius: var(--v-radius); font-size: 16px; font-family: var(--v-mono); outline: none; }
         .v-input:focus { border-color: var(--v-accent); }
 
-        /* BOUTONS TACTILES (44px min) */
-        .v-btn {
-            height: 44px;
-            padding: 0 20px;
-            border-radius: var(--v-radius);
-            border: none;
-            font-weight: 600;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            font-size: 15px;
-            transition: opacity 0.2s;
-        }
+        .v-btn { height: 46px; padding: 0 20px; border-radius: var(--v-radius); border: none; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-size: 15px; }
         .v-btn-primary { background: var(--v-accent); color: #fff; width: 100%; }
         .v-btn-ghost { background: #f0f2f5; color: var(--v-text); }
-        .v-btn-icon {
-            width: 44px;
-            height: 44px;
-            background: none;
-            color: var(--v-muted);
-            flex-shrink: 0;
-            border: none;
-            cursor: pointer;
-        }
+        .v-btn-icon { width: 44px; height: 44px; background: none; border: none; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; }
 
-        /* APP INTERFACE */
-        .v-header {
-            width: 100%;
-            background: #fff;
-            border-bottom: 1px solid var(--v-border);
-            padding: 10px 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
+        .v-header { width: 100%; background: #fff; border-bottom: 1px solid var(--v-border); padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .v-badge { font-size: 10px; padding: 3px 6px; border-radius: 4px; font-weight: 700; text-transform: uppercase; }
+        .v-badge-local { background: #eee; color: #666; }
+        .v-badge-sync { background: #e1f3d8; color: var(--v-green); }
 
-        .v-badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 700; margin-left: 5px; }
-        .v-badge-ok { background: #e1f3d8; color: var(--v-green); }
+        .v-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 15px; width: 100%; max-width: 1000px; padding: 20px; }
+        .v-entry { background: #fff; border: 1px solid var(--v-border); border-radius: 10px; padding: 15px; }
+        .v-row { display: flex; align-items: center; background: #f8f9fb; border-radius: 6px; padding: 5px 10px; margin-top: 8px; gap: 5px; }
+        .v-val { font-family: var(--v-mono); font-size: 14px; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-        .v-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100%, 1fr));
-            gap: 12px;
-            width: 100%;
-            max-width: 800px;
-            padding: 15px 0;
-        }
-
-        .v-entry-card {
-            background: #fff;
-            border: 1px solid var(--v-border);
-            border-radius: 10px;
-            padding: 15px;
-        }
-
-        .v-entry-row {
-            display: flex;
-            align-items: center;
-            background: #f8f9fb;
-            border-radius: 6px;
-            padding: 5px 10px;
-            margin-top: 8px;
-        }
-        .v-val { font-family: var(--v-mono); font-size: 14px; flex: 1; overflow: hidden; text-overflow: ellipsis; }
-
-        /* MODAL */
-        .v-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(3px);
-            display: none;
-            justify-content: center;
-            padding: 15px;
-            z-index: 2000;
-            overflow-y: auto;
-        }
+        .v-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; justify-content: center; z-index: 2000; padding: 15px; overflow-y: auto; }
         .v-overlay.active { display: flex; }
-        .v-modal { background: #fff; width: 100%; max-width: 450px; border-radius: 12px; padding: 20px; align-self: flex-start; margin-top: 30px; }
+        .v-modal { background: #fff; width: 100%; max-width: 450px; border-radius: 12px; padding: 20px; align-self: flex-start; margin-top: 20px; }
 
-        .v-disclaimer { font-size: 11px; text-align: center; color: var(--v-muted); margin-top: 20px; border-top: 1px solid #eee; padding-top: 10px; }
+        #v-toasts { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 3000; }
+        .v-toast { background: #333; color: #fff; padding: 10px 20px; border-radius: 25px; font-size: 14px; margin-top: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
 
-        @media (min-width: 600px) {
-            .v-grid { grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); }
-        }
+        @media (max-width: 600px) { .v-grid { grid-template-columns: 1fr; padding: 10px; } }
     </style>
 </head>
-<body class="v-app-wrapper">
+<body class="v-app">
 
-<div id="v-toasts" style="position:fixed; bottom:20px; left:50%; transform:translateX(-50%); z-index:3000;"></div>
+<div id="v-toasts"></div>
 
 <div id="scr-lock" class="v-screen active">
-    <div class="v-card">
-        <h3 style="text-align:center; margin-bottom:20px;">Coffre-Fort Sécurisé</h3>
+    <div class="v-card" style="margin-top: 50px;">
+        <h2 style="text-align:center; margin-bottom:25px;">🔒 Coffre-Fort</h2>
         <div class="v-field">
             <label class="v-label">Mot de passe maître</label>
-            <div class="v-input-group">
-                <input type="password" id="m-pass" class="v-input" placeholder="••••••••">
-                <button class="v-btn-icon" onclick="toggleV('m-pass')">👁️</button>
-            </div>
+            <input type="password" id="m-pass" class="v-input" placeholder="Saisir votre clé...">
         </div>
         <button class="v-btn v-btn-primary" onclick="doUnlock()">DÉVERROUILLER</button>
-        <p id="unlock-err" style="color:var(--v-red); font-size:12px; margin-top:10px; text-align:center; display:none;">Mot de passe incorrect</p>
+        <p id="lock-err" style="color:var(--v-red); display:none; text-align:center; margin-top:10px; font-size:14px;">Mot de passe incorrect</p>
     </div>
 </div>
 
 <div id="scr-app" class="v-screen">
     <header class="v-header">
-        <div style="font-weight:700;">Coffre <span id="sync-status" class="v-badge v-badge-ok">Local</span></div>
-        <div style="display:flex; gap:5px;">
-            <button class="v-btn-icon" onclick="openAdd()">➕</button>
-            <button class="v-btn-icon" onclick="syncGh()" id="sync-btn">🔄</button>
+        <div style="font-weight:800;">Coffre <span id="badge" class="v-badge v-badge-local">Local</span></div>
+        <div style="display:flex;">
+            <button class="v-btn-icon" onclick="openModal('mod-entry')">➕</button>
+            <button class="v-btn-icon" onclick="syncGh()" id="btn-sync">🔄</button>
+            <button class="v-btn-icon" onclick="openModal('mod-cfg')">⚙️</button>
             <button class="v-btn-icon" onclick="location.reload()">🔒</button>
         </div>
     </header>
+    
+    <div style="width:100%; max-width:1000px; padding:15px 20px 0;">
+        <input type="text" id="q" class="v-input" placeholder="Rechercher un compte..." oninput="render()">
+    </div>
 
-    <div class="v-grid">
-        <div style="padding: 0 15px; width:100%;">
-            <input type="text" id="q-search" class="v-input" placeholder="Rechercher..." oninput="render()">
+    <div id="list" class="v-grid"></div>
+</div>
+
+<div id="mod-entry" class="v-overlay">
+    <div class="v-modal">
+        <h3 style="margin-bottom:15px;">Nouvelle Entrée</h3>
+        <input type="hidden" id="e-id">
+        <div class="v-field"><label class="v-label">Site / Titre</label><input type="text" id="e-t" class="v-input"></div>
+        <div class="v-field"><label class="v-label">Identifiant</label><input type="text" id="e-l" class="v-input"></div>
+        <div class="v-field"><label class="v-label">Mot de passe</label>
+            <div style="display:flex; gap:5px;">
+                <input type="text" id="e-p" class="v-input" style="font-family:var(--v-mono);">
+                <button class="v-btn-ghost" style="padding:0 10px; border-radius:8px;" onclick="gen()">🎲</button>
+            </div>
         </div>
-        <div id="entries-list" class="v-grid" style="padding:15px;"></div>
+        <div style="display:flex; gap:10px; margin-top:10px;">
+            <button class="v-btn v-btn-ghost" style="flex:1" onclick="closeModal('mod-entry')">Annuler</button>
+            <button class="v-btn v-btn-primary" style="flex:1" onclick="save()">Enregistrer</button>
+        </div>
     </div>
 </div>
 
-<div id="modal-entry" class="v-overlay">
+<div id="mod-cfg" class="v-overlay">
     <div class="v-modal">
-        <h4 style="margin-bottom:15px;">Entrée Identifiant</h4>
-        <div class="v-field"><label class="v-label">Titre</label><input type="text" id="e-title" class="v-input"></div>
-        <div class="v-field"><label class="v-label">Login</label><input type="text" id="e-login" class="v-input"></div>
-        <div class="v-field">
-            <label class="v-label">Mot de passe</label>
-            <div class="v-input-group">
-                <input type="password" id="e-pass" class="v-input">
-                <button class="v-btn-icon" onclick="toggleV('e-pass')">👁️</button>
-            </div>
-        </div>
-        <div style="display:flex; gap:10px;">
-            <button class="v-btn v-btn-ghost" style="flex:1;" onclick="closeM()">ANNULER</button>
-            <button class="v-btn v-btn-primary" style="flex:1;" onclick="save()">SAUVER</button>
+        <h3 style="margin-bottom:15px;">Configuration GitHub</h3>
+        <div class="v-field"><label class="v-label">Repo (login/repo)</label><input type="text" id="cfg-repo" class="v-input" placeholder="karazaitri12-cpu/mon-coffre"></div>
+        <div class="v-field"><label class="v-label">Token Personnel (PAT)</label><input type="password" id="cfg-tok" class="v-input" placeholder="github_pat_..."></div>
+        <div style="display:flex; gap:10px; margin-top:10px;">
+            <button class="v-btn v-btn-ghost" style="flex:1" onclick="closeModal('mod-cfg')">Fermer</button>
+            <button class="v-btn v-btn-primary" style="flex:1" onclick="saveCfg()">Sauver & Sync</button>
         </div>
     </div>
 </div>
 
 <script>
-/**
- * LE MOTEUR GITHUB SYNCHRONISÉ (Optimisé 2026)
- */
-const LS = { SALT: 'v_salt', VERIFY: 'v_verify', DATA: 'v_data', GH_REPO: 'v_gh_repo', GH_TOKEN: 'v_gh_token' };
+/** ENGINE GITHUB & CRYPTO **/
+const LS = { SALT: 'v2_s', VERIFY: 'v2_v', DATA: 'v2_d', GH_R: 'v2_gr', GH_T: 'v2_gt' };
 const ITER = 400000;
-let SESSION_KEY = null;
+let SK = null; 
 let VAULT = [];
 
-// CRYPTO
 async function derive(p, s) {
-    const b = await crypto.subtle.importKey('raw', new TextEncoder().encode(p), 'PBKDF2', false, ['deriveKey']);
-    return crypto.subtle.deriveKey({name:'PBKDF2', salt:s, iterations:ITER, hash:'SHA-256'}, b, {name:'AES-GCM', length:256}, false, ['encrypt','decrypt']);
+    const k = await crypto.subtle.importKey('raw', new TextEncoder().encode(p), 'PBKDF2', false, ['deriveKey']);
+    return crypto.subtle.deriveKey({name:'PBKDF2', salt:s, iterations:ITER, hash:'SHA-256'}, k, {name:'AES-GCM', length:256}, false, ['encrypt','decrypt']);
 }
-
-async function enc(txt) {
+async function enc(t) {
     const iv = crypto.getRandomValues(new Uint8Array(12));
-    const ct = await crypto.subtle.encrypt({name:'AES-GCM', iv}, SESSION_KEY, new TextEncoder().encode(txt));
-    const res = new Uint8Array(12 + ct.byteLength); res.set(iv); res.set(new Uint8Array(ct), 12);
-    return btoa(String.fromCharCode(...res));
+    const ct = await crypto.subtle.encrypt({name:'AES-GCM', iv}, SK, new TextEncoder().encode(t));
+    const r = new Uint8Array(12 + ct.byteLength); r.set(iv); r.set(new Uint8Array(ct), 12);
+    return btoa(String.fromCharCode(...r));
+}
+async function dec(b) {
+    const d = Uint8Array.from(atob(b), c => c.charCodeAt(0));
+    const p = await crypto.subtle.decrypt({name:'AES-GCM', iv:d.slice(0,12)}, SK, d.slice(12));
+    return new TextDecoder().decode(p);
 }
 
-async function dec(b64) {
-    const buf = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
-    const pt = await crypto.subtle.decrypt({name:'AES-GCM', iv:buf.slice(0,12)}, SESSION_KEY, buf.slice(12));
-    return new TextDecoder().decode(pt);
-}
-
-// GITHUB SYNC ENGINE (Ton cœur de métier)
+// GITHUB SYNC
 async function syncGh() {
-    const repo = localStorage.getItem(LS.GH_REPO);
-    const tokenEnc = localStorage.getItem(LS.GH_TOKEN);
-    if(!repo || !tokenEnc) { toast("GitHub non configuré", "warn"); return; }
-    
-    document.getElementById('sync-btn').style.opacity = '0.5';
+    const r = localStorage.getItem(LS.GH_R), tEnc = localStorage.getItem(LS.GH_T);
+    if(!r || !tEnc) return toast("Configurez GitHub (rouage)");
+    document.getElementById('btn-sync').style.opacity = '0.4';
     try {
-        const token = await dec(tokenEnc);
-        const headers = { Authorization: `token ${token}`, Accept: 'application/vnd.github.v3+json' };
-        
-        // 1. Get Remote
-        const res = await fetch(`https://api.github.com/repos/${repo}/contents/vault.json`, { headers });
-        if(res.ok) {
-            const json = await res.json();
-            const remoteVault = JSON.parse(await dec(atob(json.content)));
-            // Merge simple : On garde le plus récent (basé sur le timestamp "u")
-            const map = {};
-            [...VAULT, ...remoteVault].forEach(e => { if(!map[e.id] || e.u > map[e.id].u) map[e.id] = e; });
-            VAULT = Object.values(map);
-            render();
+        const tok = await dec(tEnc), h = { Authorization: `token ${tok}`, Accept: 'application/vnd.github.v3+json' };
+        const g = await fetch(`https://api.github.com/repos/${r}/contents/vault.json`, {h}).then(res => res.ok ? res.json() : null);
+        if(g) {
+            const rv = JSON.parse(await dec(atob(g.content.replace(/\s/g,''))));
+            const map = {}; [...VAULT, ...rv].forEach(e => { if(!map[e.id] || e.u > map[e.id].u) map[e.id] = e; });
+            VAULT = Object.values(map); render();
         }
-
-        // 2. Push Update
-        const blob = await enc(JSON.stringify(VAULT));
-        const currentFile = await fetch(`https://api.github.com/repos/${repo}/contents/vault.json`, { headers }).then(r => r.json());
-        
-        await fetch(`https://api.github.com/repos/${repo}/contents/vault.json`, {
-            method: 'PUT',
-            headers,
-            body: JSON.stringify({
-                message: "Sync Mobile",
-                content: btoa(blob),
-                sha: currentFile.sha || null
-            })
+        const b = await enc(JSON.stringify(VAULT));
+        await fetch(`https://api.github.com/repos/${r}/contents/vault.json`, {
+            method: 'PUT', headers: h, body: JSON.stringify({ message: "Sync", content: btoa(b), sha: g ? g.sha : null })
         });
-        toast("Synchro GitHub OK", "ok");
-        document.getElementById('sync-status').textContent = "GitHub Sync";
-    } catch (e) {
-        toast("Erreur Sync", "warn");
-    }
-    document.getElementById('sync-btn').style.opacity = '1';
+        toast("Synchro GitHub réussie !");
+        document.getElementById('badge').textContent = "GitHub Sync"; document.getElementById('badge').className = "v-badge v-badge-sync";
+    } catch(e) { toast("Erreur synchro"); }
+    document.getElementById('btn-sync').style.opacity = '1';
 }
 
-// LOGIQUE APP
+// UI LOGIC
 async function doUnlock() {
     const p = document.getElementById('m-pass').value;
     let sB64 = localStorage.getItem(LS.SALT);
-    
     try {
         if(!sB64) {
             const s = crypto.getRandomValues(new Uint8Array(16));
             localStorage.setItem(LS.SALT, btoa(String.fromCharCode(...s)));
-            SESSION_KEY = await derive(p, s);
-            localStorage.setItem(LS.VERIFY, await enc("OK"));
-            VAULT = [];
+            SK = await derive(p, s); localStorage.setItem(LS.VERIFY, await enc("OK"));
         } else {
             const s = Uint8Array.from(atob(sB64), c => c.charCodeAt(0));
-            SESSION_KEY = await derive(p, s);
-            if(await dec(localStorage.getItem(LS.VERIFY)) !== "OK") throw "err";
-            const data = localStorage.getItem(LS.DATA);
-            VAULT = data ? JSON.parse(await dec(data)) : [];
+            SK = await derive(p, s); if(await dec(localStorage.getItem(LS.VERIFY)) !== "OK") throw "err";
+            const d = localStorage.getItem(LS.DATA); VAULT = d ? JSON.parse(await dec(d)) : [];
         }
-        show('scr-app');
+        document.getElementById('scr-lock').classList.remove('active');
+        document.getElementById('scr-app').classList.add('active');
+        const r = localStorage.getItem(LS.GH_R); if(r) { document.getElementById('cfg-repo').value = r; syncGh(); }
         render();
-        syncGh(); // Tentative de synchro au déverrouillage
-    } catch(e) { document.getElementById('unlock-err').style.display='block'; }
+    } catch(e) { document.getElementById('lock-err').style.display='block'; }
 }
 
 function render() {
-    const q = document.getElementById('q-search').value.toLowerCase();
-    const list = document.getElementById('entries-list');
-    list.innerHTML = '';
+    const q = document.getElementById('q').value.toLowerCase(), l = document.getElementById('list');
+    l.innerHTML = '';
     VAULT.filter(e => e.t.toLowerCase().includes(q) || e.l.toLowerCase().includes(q)).forEach(e => {
-        const c = document.createElement('div');
-        c.className = 'v-entry-card';
-        c.innerHTML = `
+        const div = document.createElement('div'); div.className = 'v-entry';
+        div.innerHTML = `
             <div style="display:flex; justify-content:space-between;"><strong>${h(e.t)}</strong><button class="v-btn-icon" onclick="del('${e.id}')">🗑️</button></div>
-            <div class="v-entry-row"><span class="v-val">${h(e.l)}</span><button class="v-btn-icon" onclick="cp('${e.l.replace(/'/g,"\\'")}')">📋</button></div>
-            <div class="v-entry-row"><span class="v-val" id="p-${e.id}">••••••••</span>
-                <button class="v-btn-icon" onclick="showP('${e.id}','${e.p.replace(/'/g,"\\'")}')">👁️</button>
+            <div class="v-row"><span class="v-val">${h(e.l)}</span><button class="v-btn-icon" onclick="cp('${e.l.replace(/'/g,"\\'")}')">📋</button></div>
+            <div class="v-row"><span class="v-val" id="p-${e.id}">••••••••</span>
+                <button class="v-btn-icon" onclick="sh('${e.id}','${e.p.replace(/'/g,"\\'")}')">👁️</button>
                 <button class="v-btn-icon" onclick="cp('${e.p.replace(/'/g,"\\'")}')">📋</button>
-            </div>
-        `;
-        list.appendChild(c);
+            </div>`;
+        l.appendChild(div);
     });
 }
 
-// ACTIONS
 async function save() {
-    const e = { id: Date.now().toString(), t: document.getElementById('e-title').value, l: document.getElementById('e-login').value, p: document.getElementById('e-pass').value, u: Date.now() };
-    VAULT.push(e);
+    const t = document.getElementById('e-t').value, l = document.getElementById('e-l').value, p = document.getElementById('e-p').value;
+    if(!t || !p) return alert("Titre et MDP requis");
+    VAULT.push({ id: Date.now().toString(), t, l, p, u: Date.now() });
     localStorage.setItem(LS.DATA, await enc(JSON.stringify(VAULT)));
-    closeM(); render(); toast("Enregistré");
-    syncGh(); // Auto-sync
+    closeModal('mod-entry'); render(); syncGh();
 }
 
+async function saveCfg() {
+    const r = document.getElementById('cfg-repo').value, t = document.getElementById('cfg-tok').value;
+    localStorage.setItem(LS.GH_R, r); if(t) localStorage.setItem(LS.GH_T, await enc(t));
+    closeModal('mod-cfg'); syncGh();
+}
+
+function gen() { document.getElementById('e-p').value = Math.random().toString(36).slice(-10) + Math.random().toString(36).toUpperCase().slice(-4) + "!"; }
 function del(id) { if(confirm("Supprimer?")) { VAULT = VAULT.filter(x=>x.id!==id); enc(JSON.stringify(VAULT)).then(d=>localStorage.setItem(LS.DATA, d)); render(); } }
-
-function cp(t) { 
-    const temp = document.createElement('textarea'); temp.value = t; document.body.appendChild(temp); temp.select();
-    try { document.execCommand('copy'); toast("Copié !"); } catch(e) {}
-    document.body.removeChild(temp);
-}
-
-function showP(id, val) { const el = document.getElementById('p-'+id); el.textContent = el.textContent === '••••••••' ? val : '••••••••'; }
-function toggleV(id) { const i = document.getElementById(id); i.type = i.type === 'password' ? 'text' : 'password'; }
-function show(id) { document.querySelectorAll('.v-screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
-function openAdd() { document.getElementById('modal-entry').classList.add('active'); }
-function closeM() { document.getElementById('modal-entry').classList.remove('active'); }
+function cp(t) { const a = document.createElement('textarea'); a.value = t; document.body.appendChild(a); a.select(); document.execCommand('copy'); a.remove(); toast("Copié !"); }
+function sh(id, v) { const e = document.getElementById('p-'+id); e.textContent = e.textContent==='••••••••' ? v : '••••••••'; }
+function openModal(id) { document.getElementById(id).classList.add('active'); }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 function h(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
-function toast(m) {
-    const t = document.createElement('div'); t.style.cssText = "background:rgba(0,0,0,0.8); color:#fff; padding:10px 20px; border-radius:20px; font-size:14px; margin-top:10px;";
-    t.textContent = m; document.getElementById('v-toasts').appendChild(t); setTimeout(()=>t.remove(), 2000);
-}
+function toast(m) { const t = document.createElement('div'); t.className = 'v-toast'; t.textContent = m; document.getElementById('v-toasts').appendChild(t); setTimeout(()=>t.remove(), 2500); }
 </script>
 </body>
 </html>
