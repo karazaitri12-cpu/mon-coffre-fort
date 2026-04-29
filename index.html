@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Coffre-Fort — Synchronisé GitHub</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#f4f6f9">
+<link rel="apple-touch-icon" href="icon-192.png">
 <style>
 :root {
   --bg: #f4f6f9;
@@ -1178,13 +1181,31 @@ function b64ToStr(b64) {
   return new TextDecoder().decode(bytes);
 }
 
+// Push un fichier texte sur GitHub (crée ou met à jour)
 async function ghPut(filename, content, shaKey) {
-  const sha = localStorage.getItem(shaKey);
+  let sha = localStorage.getItem(shaKey);
+
+  // CORRECTIF DU BUG "SHA" : Si le SHA n'est pas connu (nouvel appareil), 
+  // on interroge GitHub pour récupérer le SHA actuel du fichier avant de l'écraser.
+  if (!sha) {
+    try {
+      const resCheck = await fetch(`https://api.github.com/repos/${ghRepo}/contents/${filename}`, {
+        headers: { Authorization: `token ${ghToken}`, Accept: 'application/vnd.github.v3+json' }
+      });
+      if (resCheck.ok) {
+        const meta = await resCheck.json();
+        sha = meta.sha;
+        localStorage.setItem(shaKey, sha);
+      }
+    } catch(e) { console.log('Fichier nouveau ou introuvable'); }
+  }
+
   const body = {
     message: `Sync coffre ${new Date().toISOString()}`,
     content: strToB64(content)
   };
   if (sha) body.sha = sha;
+
   const res = await fetch(`https://api.github.com/repos/${ghRepo}/contents/${filename}`, {
     method: 'PUT',
     headers: {
@@ -1194,6 +1215,7 @@ async function ghPut(filename, content, shaKey) {
     },
     body: JSON.stringify(body)
   });
+  
   if (!res.ok) { const e = await res.json(); throw new Error(e.message || 'GitHub PUT error'); }
   const data = await res.json();
   localStorage.setItem(shaKey, data.content.sha);
@@ -1687,5 +1709,15 @@ function toast(msg, type='ok') {
   setTimeout(() => t.remove(), 4000);
 }
 </script>
+
+  <!-- Activation de la PWA -->
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(err => console.log('SW config erreur', err));
+    });
+  }
+</script>
+  
 </body>
 </html>
