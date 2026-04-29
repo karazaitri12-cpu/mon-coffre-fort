@@ -1053,44 +1053,56 @@ async function doSetup() {
 }
 
 function showRestore() {
-  show('screen-github');
-  const btn = document.getElementById('gh-btn');
-  btn.textContent = "Restaurer mon coffre";
-  
-  // Remplace l'action du bouton "Connecter" pour restaurer
-  btn.onclick = async function() {
-    const repo = document.getElementById('gh-repo').value.trim();
-    const token = document.getElementById('gh-token').value.trim();
-    const err = document.getElementById('gh-err');
-    err.classList.remove('show');
+  try {
+    const ghScreen = document.getElementById('screen-github');
+    if (!ghScreen) {
+      alert("Erreur : L'écran GitHub n'existe pas dans le code HTML. Veuillez copier-coller correctement tout le fichier.");
+      return;
+    }
     
-    if (!repo || !token) {
-        err.textContent = "Remplissez les champs.";
+    show('screen-github');
+    const btn = document.getElementById('gh-btn');
+    if (!btn) return;
+    
+    btn.textContent = "Restaurer mon coffre";
+    
+    // Remplace l'action du bouton "Connecter" pour restaurer
+    btn.onclick = async function() {
+      const repo = document.getElementById('gh-repo').value.trim();
+      const token = document.getElementById('gh-token').value.trim();
+      const err = document.getElementById('gh-err');
+      err.classList.remove('show');
+      
+      if (!repo || !token) {
+          err.textContent = "Remplissez les champs.";
+          err.classList.add('show');
+          return;
+      }
+      
+      btn.textContent = "Recherche..."; btn.disabled = true;
+      try {
+        const r1 = await fetch(`https://api.github.com/repos/${repo}/contents/vault.salt.txt`, {headers:{Authorization:`token ${token}`, Accept:'application/vnd.github.v3+json'}});
+        const r2 = await fetch(`https://api.github.com/repos/${repo}/contents/vault.verify.txt`, {headers:{Authorization:`token ${token}`, Accept:'application/vnd.github.v3+json'}});
+        
+        if (!r1.ok || !r2.ok) throw new Error("Aucun coffre trouvé sur ce Repo GitHub");
+        
+        const m1 = await r1.json(); const m2 = await r2.json();
+        localStorage.setItem(LS.SALT, b64ToStr(m1.content).trim());
+        localStorage.setItem(LS.VERIFY, b64ToStr(m2.content).trim());
+        localStorage.setItem(LS.GH_REPO, repo);
+        localStorage.setItem('cf2_temp_tok', token); // Stocké temporairement
+        
+        toast('Coffre trouvé ! Redémarrage...', 'ok');
+        setTimeout(() => location.reload(), 1500);
+      } catch (e) {
+        err.textContent = e.message;
         err.classList.add('show');
-        return;
-    }
-    
-    btn.textContent = "Restauration..."; btn.disabled = true;
-    try {
-      const r1 = await fetch(`https://api.github.com/repos/${repo}/contents/vault.salt.txt`, {headers:{Authorization:`token ${token}`, Accept:'application/vnd.github.v3+json'}});
-      const r2 = await fetch(`https://api.github.com/repos/${repo}/contents/vault.verify.txt`, {headers:{Authorization:`token ${token}`, Accept:'application/vnd.github.v3+json'}});
-      
-      if (!r1.ok || !r2.ok) throw new Error("Coffre introuvable sur ce Repo");
-      
-      const m1 = await r1.json(); const m2 = await r2.json();
-      localStorage.setItem(LS.SALT, b64ToStr(m1.content).trim());
-      localStorage.setItem(LS.VERIFY, b64ToStr(m2.content).trim());
-      localStorage.setItem(LS.GH_REPO, repo);
-      localStorage.setItem('cf2_temp_tok', token); // Stocké le temps du 1er déverrouillage
-      
-      toast('Coffre trouvé ! Redémarrage...', 'ok');
-      setTimeout(() => location.reload(), 1500);
-    } catch (e) {
-      err.textContent = e.message;
-      err.classList.add('show');
-      btn.textContent = "Restaurer mon coffre"; btn.disabled = false;
-    }
-  };
+        btn.textContent = "Restaurer mon coffre"; btn.disabled = false;
+      }
+    };
+  } catch (e) {
+    alert("Erreur système : " + e.message);
+  }
 }
 
 // ══════════════════════════════════════════════
@@ -1786,8 +1798,13 @@ function toast(msg, type='ok') {
   setTimeout(() => t.remove(), 4000);
 }
 
-// Activation PWA
+// Nettoyage forcé des anciens Service Workers pour forcer la mise à jour
 if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(function(registrations) {
+    for(let registration of registrations) {
+      registration.update();
+    }
+  });
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('sw.js').catch(err => console.log('SW erreur', err));
   });
