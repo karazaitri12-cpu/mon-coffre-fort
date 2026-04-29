@@ -550,6 +550,13 @@ select.form-input{cursor:pointer;background-image:none}
       Créer le coffre
     </button>
 
+     <!-- NOUVEAU BOUTON À COLLER ICI -->
+    <button class="btn btn-ghost btn-full" onclick="showRestore()" style="margin-top:8px">
+      J'ai déjà un coffre sur GitHub
+    </button>
+
+    <div class="info-box blue" style="margin-top:16px">
+
     <div class="info-box blue" style="margin-top:16px">
       <strong>Chiffrement AES-256-GCM + PBKDF2 (100 000 itérations).</strong>
       Le mot de passe maître génère une clé en RAM uniquement. En cas de perte, le coffre est irrécupérable.
@@ -1041,6 +1048,39 @@ async function doSetup() {
   show('screen-github');
 }
 
+  // NOUVEAU CODE À COLLER ICI :
+function showRestore() {
+  document.getElementById('screen-setup').classList.remove('active');
+  document.getElementById('screen-github').classList.add('active');
+  const btn = document.getElementById('gh-btn');
+  btn.textContent = "Restaurer mon coffre";
+  btn.onclick = async function() {
+    const repo = document.getElementById('gh-repo').value.trim();
+    const token = document.getElementById('gh-token').value.trim();
+    if (!repo || !token) return toast('Remplissez les champs', 'err');
+    
+    btn.textContent = "Restauration..."; btn.disabled = true;
+    try {
+      const r1 = await fetch(`https://api.github.com/repos/${repo}/contents/vault.salt.txt`, {headers:{Authorization:`token ${token}`, Accept:'application/vnd.github.v3+json'}});
+      const r2 = await fetch(`https://api.github.com/repos/${repo}/contents/vault.verify.txt`, {headers:{Authorization:`token ${token}`, Accept:'application/vnd.github.v3+json'}});
+      
+      if (!r1.ok || !r2.ok) throw new Error("Coffre introuvable sur ce Repo");
+      
+      const m1 = await r1.json(); const m2 = await r2.json();
+      localStorage.setItem(LS.SALT, b64ToStr(m1.content).trim());
+      localStorage.setItem(LS.VERIFY, b64ToStr(m2.content).trim());
+      localStorage.setItem(LS.GH_REPO, repo);
+      localStorage.setItem(LS.GH_TOK, await enc(sessionKey || await deriveKey('temp', new Uint8Array(16)), token)); // Sauvegarde temporaire sécurisée
+      
+      toast('Coffre trouvé ! Connectez-vous.', 'ok');
+      setTimeout(() => location.reload(), 1500);
+    } catch (e) {
+      toast(e.message, 'err');
+      btn.textContent = "Restaurer mon coffre"; btn.disabled = false;
+    }
+  };
+}
+  
 // ══════════════════════════════════════════════
 //  UNLOCK
 // ══════════════════════════════════════════════
